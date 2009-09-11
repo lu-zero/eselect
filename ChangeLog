@@ -1,575 +1,34 @@
-2009-09-08  Ulrich Mueller  <ulm@gentoo.org>
-
-	* configure.ac: Update version to 1.2.1.
-	* Tagged 1.2.1 release.
-
-	* modules/env.eselect (create_profile_env): Ignore leading
-	"export" in env files, fixes bug 283932. Accept only valid shell
-	identifiers as variable names.
-
-2009-08-27  Ulrich Mueller  <ulm@gentoo.org>
-
-	* configure.ac: Update version to 1.2.
-	* Tagged 1.2 release.
-
-2009-08-22  Ulrich Mueller  <ulm@gentoo.org>
-
-	* bin/eselect.in (ESELECT_KNOWN_OPTIONS): Remove variable, as
-	there is a case statement for all possible options anyway.
-
-	* modules/news.eselect (do_list): Output read/unread tag first.
-
-2009-08-19  Ulrich Mueller  <ulm@gentoo.org>
-
-	* configure.ac: Update version to 1.2_rc1.
-	* Tagged 1.2_rc1 release candidate.
-
-	* bin/eselect.in (ESELECT_KNOWN_OPTIONS): Add --brief option,
-	which will enable shorter output. Bug 154511.
-	(ec_do_help): Reset output mode to default.
-	* libs/output.bash.in (set_output_mode): New function.
-	(write_list_start): Suppress all output in "brief" output mode.
-	(write_numbered_list_entry): Suppress numbers in "brief" mode.
-	(highlight_marker): Suppress marker in "brief" mode.
-	* libs/default.eselect.in (do_usage, do_help): Reset output mode
-	to default.
-	* libs/editor-variable.bash.in (do_list):
-	* modules/bashcomp.eselect (do_list):
-	* modules/kernel.eselect (do_list):
-	* modules/news.eselect (do_list): Suppress "none found" messages
-	in brief output mode.
-	* man/eselect.1: Document the --brief option.
-
-2009-08-18  Ulrich Mueller  <ulm@gentoo.org>
-
-	* libs/output.bash.in (write_kv_list_entry): Fix indentation of
-	second column in output. Simplify the code.
-	(write_numbered_list_entry): Remove unused local declaration.
-	(space): Declare n as local variable.
-	(highlight, highlight_warning, highlight_marker): Use plain echo
-	instead of "echo -e".
-	(write_list_start, write_kv_list_entry)
-	(write_numbered_list_entry): Don't change colours on restore if
-	called with the -p option.
-	(apply_text_highlights): Restore NORMAL_COLOUR if called with an
-	empty first argument.
-
-2009-08-15  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/news.eselect: Renamed from news-tng.eselect.
-	* modules/Makefile.am (safe_scripts): Update.
-	* man/news.eselect.5: Renamed from news-tng.eselect.5 and updated.
-	* man/Makefile.am (man_MANS): Update.
-
-	* configure.ac: Add support for Gentoo Alt/Prefix, define EPREFIX.
-	* bin/Makefile.am (dosed): Substitute EPREFIX variable.
-	* bin/eselect.in (EPREFIX, EROOT): New variables.
-	* libs/editor-variable.bash.in (find_targets, read_env_value)
-	(write_env_value, do_set):
-	* libs/multilib.bash.in (list_libdirs):
-	* libs/skel.bash.in (find_implems, is_active, switch_implem)
-	(iface_do_show, do_list, do_show, do_add):
-	* modules/bashcomp.eselect (find_targets, is_enabled, do_enable)
-	(do_disable):
-	* modules/binutils.eselect (BINUTILS_ENVFILE, find_targets)
-	(find_versions, is_active, is_valid, switch_profile, do_list)
-	(do_set, do_show):
-	* modules/env.eselect (ENVPROFILE, LDCONFIG, PRELINK, LDMTIMEDB)
-	(update_envvar_classes, create_profile_env, create_ld_so_conf)
-	(create_prelink_conf, do_update):
-	* modules/kernel.eselect (find_targets, remove_symlink)
-	(set_symlink, do_show, do_list, do_set):
-	* modules/news-tng.eselect (NEWS_DIR):
-	* modules/profile.eselect (remove_symlink, set_symlink, do_show)
-	(do_list, do_set):
-	* modules/rc.eselect (source_rc_functions, list_runlevels)
-	(find_unused_scripts, rc_runscript, do_add, do_delete, do_list)
-	(do_show): Honour EPREFIX and EROOT. Partially based on patch from
-	Fabian Groffen <grobian@gentoo.org> in bug 274760.
-
-	* libs/Makefile.am (dosed):
-	* libs/skel.bash.in (find_implems, is_active, switch_implem)
-	(iface_do_show, do_add, do_list, do_show): Revert changes of
-	2009-05-15, as they would collide with proper Prefix support.
-
-2009-08-13  Ulrich Mueller  <ulm@gentoo.org>
-
-	* libs/editor-variable.bash.in (do_list):
-	* libs/skel.bash.in (iface_do_list):
-	* modules/bashcomp.eselect (do_list):
-	* modules/binutils.eselect (do_list):
-	* modules/kernel.eselect (do_list):
-	* modules/profile.eselect (do_list): Call highlight_marker
-	function for the active list entry.
-
-	* libs/output.bash.in (highlight_marker): New utility function,
-	mark a list entry as active/selected.
-	* doc/developer-guide.txt: Document it.
-
-	* libs/path-manipulation.bash.in (basename, dirname): Implement
-	functions in a POSIX compliant way. Fixes bug 280598.
-
-2009-08-10  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/news-tng.eselect (do_list): Align columns in output.
-
-2009-08-08  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/bashcomp.eselect (do_enable): Create global directory
-	with proper permissions. Fixes bug 279662.
-	(describe_enable_options, describe_disable_options): List --global
-	option before parameter. Fixes bug 279664.
-
-2009-07-03  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules-other, man-other: New directories. Modules that are
-	distributed with eselect stay in the modules and man directories,
-	all others are moved to the new locations.
-	* modules-other/README: New file.
-
-	* modules/news-tng.eselect (do_list, do_read): Ignore all
-	whitespace after the colon in header lines.
-
-2009-06-27  Ulrich Mueller  <ulm@gentoo.org>
-
-	* configure.ac: Update version to 1.1.2.
-	* Tagged 1.1.2 release.
-
-2009-06-20  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/news-tng.eselect (do_read): Support mbox output format.
-	(day_of_week, rfc2047_encode, mail_header): New functions.
-	(describe_read_options): Add the new --mbox option.
-	* man/news-tng.eselect.5: Update man page.
-
-2009-06-07  Ulrich Mueller  <ulm@gentoo.org>
-
-	* libs/editor-variable.bash.in (do_set): Output a message
-	reminding the user to source /etc/profile.
-	* man/editor.eselect.5, man/visual.eselect.5, man/pager.eselect.5:
-	* man/package-manager.eselect.5: Update man pages accordingly.
-
-2009-06-06  Ulrich Mueller  <ulm@gentoo.org>
-
-	* configure.ac: Update version to 1.1.1.
-	* Tagged 1.1.1 release.
-
-	* modules/kernel.eselect (sort_kernel_versions): New function.
-	(find_targets): Sort kernel versions properly. Fixes bug 207889.
-
-2009-06-05  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/rc.eselect (is_script): Symlinks are implicitly
-	resolved, so no need to canonicalise.
-	(do_start, do_stop, do_pause, do_reload, do_restart)
-	(run_runscript): Move output message to calling functions.
-	(do_list): Output colours also if only one runlevel is shown.
-	(find_unused_scripts, show_script_status): New functions.
-	(do_show): Add "--unused" option to show status of scripts that
-	are not assigned to any runlevel; bug 271208.
-	(describe_show_options): Document new option.
-	* man/rc.eselect.5: Document new option for "show" action.
-
-2009-06-04  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/package-manager.eselect: New module, managing the
-	PACKAGE_MANAGER environment variable.
-	* man/package-manager.eselect.5: New man page.
-
-	* libs/package-manager.bash.in (package_manager): Test if selected
-	package manager exists, and fall back to Portage if not. Rename
-	variable ESELECT_PACKAGE_MANAGER to more generic PACKAGE_MANAGER.
-
-	* libs/editor-variable.bash.in (EDITOR_LIST); Allow alternative
-	"name:/path/to/binary" syntax for items.
-	(find_targets, do_list, do_set, do_update): Update accordingly.
-
-2009-05-27  Ulrich Mueller  <ulm@gentoo.org>
-
-	* configure.ac: Update version to 1.1.
-	* Tagged 1.1 release.
-
-	* man/rc.eselect.5: Fix formatting for "show" action.
-
-	* libs/default.eselect.in (do_usage): Show usage message only:
-	our output may be parsed, e.g. by the bash-completion module.
-
-2009-05-23  Ulrich Mueller  <ulm@gentoo.org>
-
-	* libs/package-manager.bash.in (package_manager): Avoid hyphen in
-	function identifier.
-
-	* misc/eselect.bashcomp (_eselect): Remove --no-colour option;
-	it is not needed since output is to a pipe. Use only POSIX basic
-	regular expressions for sed. Add completion for "set", "enable",
-	and "disable" subactions.
-
-2009-05-21  Ulrich Mueller  <ulm@gentoo.org>
-
-	* configure.ac: Update version to 1.1_rc3.
-	* Tagged 1.1_rc3 release candidate.
-
-2009-05-19  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/news-tng.eselect (do_read): Output a message if there
-	are no news items to read.
-
-	* bin/eselect.in: Don't hardcode /bin/bash; use configured path
-	instead, as requested by Fabian Groffen <grobian@gentoo.org>.
-	* bin/Makefile.am (dosed): Also substitute BASH. Use at signs
-	throughout, instead of percent signs.
-	* libs/config.bash.in, libs/core.bash.in, libs/default.eselect.in:
-	* libs/editor-variable.bash.in, libs/manip.bash.in:
-	* libs/multilib.bash.in, libs/output.bash.in:
-	* libs/package-manager.bash.in, libs/path-manipulation.bash.in:
-	* libs/tests.bash.in: Remove unnecessary shebang lines.
-	* libs/Makefile.am (eselectlibs_DATA): Don't set executable bit
-	for installed libs; therefore rename eselectlibs_SCRIPTS.
-	(CLEANFILES): Update accordingly.
-
-	* configure.ac: Update version to 1.1_rc2.
-	* Tagged 1.1_rc2 release candidate.
-
-	* libs/package-manager.bash.in (run_paludis): Renamed from paludis
-	to prevent infinite loop. Fixes bug 270406.
-	(envvar, best_version, has_version, get_repositories)
-	(get_repo_news_dir): Use run_paludis instead of paludis.
-
-	* README: Use consistent indentation for all source files.
-
-2009-05-18  Ulrich Mueller  <ulm@gentoo.org>
-
-	* configure.ac: Update version to 1.1_rc1.
-	* Tagged 1.1_rc1 release candidate.
-
 2009-05-16  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/kernel.eselect: Fix quoting, simplify syntax for array
-	arguments, declare local variables, and other stylistic tweaks.
 
 	* modules/ruby.eselect: Remove outdated ruby module, as discussed
 	with Alex Legler <a3li@gentoo.org>. Current version is maintained
 	at <git://git.overlays.gentoo.org/proj/ruby-scripts.git>.
-
-2009-05-15  Ulrich Mueller  <ulm@gentoo.org>
-
-	* libs/package-manager.bash.in (envvar, best_version, has_version)
-	(get_repositories, get_repo_news_dir): Directly call package
-	manager commands with their arguments; no need to hide them in an
-	extra layer of trivial functions.
-	(get_news_dir_name): Deprecate, since it provides no additional
-	functionality. Use get_repo_news_dir instead.
-	(portageq): Function moved here from portage.bash.in.
-	(paludis): New function, paludis wrapper with redirected stderr.
-	(inherit): Don't inherit portage and paludis libs.
-	* libs/paludis.bash.in, libs/portage.bash.in: Remove, after having
-	verified that these libraries are not used by any module: neither
-	internal nor in external app-admin/eselect-* packages.
-	* libs/Makefile.am (eselectlibs_SCRIPTS, EXTRA_DIST): Update.
-
-	* libs/Makefile.am (dosed): Also substitute prefix, datadir and
-	sysconfdir.
-
-	* libs/skel.bash.in (find_implems, is_active, switch_implem)
-	(iface_do_show, do_add): Use @sysconfdir@ instead of /etc.
-	(do_list, do_show): Use @prefix@ instead of /usr.
-	(inherit): The portage lib is not used, so don't inherit it.
-
-	* libs/package-manager.bash.in (arch): Add case patterns for
-	ppc-macos. Taken from patch in Prefix overlay.
-
-2009-05-11  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/emacs.eselect, modules/ctags.eselect:
-	* man/emacs.eselect.5, man/ctags.eselect.5: Sync the emacs and
-	ctags modules from the Emacs SVN repository (r1275), corresponding
-	to the eselect-emacs-1.10 release.
-
-2009-05-05  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/news-tng.eselect (do_list): Display fallback values if
-	title or date of a news item are not available.
-	(do_read): Display an error message if the return status of
-	read_item was bad.
-
-	* modules/editor.eselect:
-	* modules/visual.eselect (EDITOR_LIST): Add some alternatives.
-
-	* libs/output.bash.in (init_columns): New function, determine
-	width of terminal and set COLUMNS variable.
-	(get_column_width): Remove.
-	(write_kv_list_entry): Get screen width from COLUMNS variable.
-	* bin/eselect.in: Call init_columns during initialisation.
-	This way, stty must be called only once, and not for each row when
-	outputting a table.
-
-2009-05-01  Ulrich Mueller  <ulm@gentoo.org>
-
-	* doc/developer-guide.txt: Update documentation.
-
-2009-04-30  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/news-tng.eselect (find_items): Use space-separated list
-	for "repos", instead of an array.
-	(do_read): Also show "Translator" header lines.
-
-	* modules/mailer.eselect:
-	* man/mailer.eselect.5: The mailer module is no longer supported
-	by MTA packages and therefore not functional, see bug 220473.
-	Remove the module and its man page.
-	* modules/Makefile.am (safe_scripts):
-	* man/Makefile.am (man_MANS): Update Makefiles accordingly.
-
-2009-04-28  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/mailer.eselect (do_list): Highlight selected target,
-	patch by Karl Hakimian <t4y68ds02@sneakemail.com> in 220473.
-
-	* configure.ac: Fix test for greadlink.
-
-	* configure.ac: Add --with-pm option for configuring the preferred
-	package manager. Supply a default path for portageq.
-	* libs/Makefile.am (dosed): Substitute PACKAGE_MANAGER.
-	* libs/package-manager.bash.in (package-manager): Return package
-	manager chosen at configure time. Overriding is possible by
-	environment variable ESELECT_PACKAGE_MANAGER.
 
 2009-04-27  Ulrich Mueller  <ulm@gentoo.org>
 
 	* modules/opengl.eselect (check_version): Don't call portageq
 	directly, use generic has_version function instead.
 
-	* libs/package-manager.bash.in (get_repositories): In the Portage
-	case, use "portageq get_repos".
-	(get_repo_news_dir): Use "portageq get_repo_path".
-	(best_version): Default to / if ROOT is empty, otherwise portageq
-	doesn't work. Actually use Portage's and Paludis's "best_version"
-	commands, not "has_version". Rename to agree with the ebuild
-	helper; this shouldn't be a problem since the function was not
-	working before.
-	(has_version): Default to / if ROOT is empty. Remove redundant
-	return statements.
-
-	* libs/portage.bash.in (portageq): Expand "$@" not $*.
-	(portage_get_repo_name, portage_get_repository): No longer needed.
-
 2009-04-25  Ulrich Mueller  <ulm@gentoo.org>
 
-	* man/binutils.eselect.5:
 	* man/blas.eselect.5:
 	* man/cblas.eselect.5:
 	* man/lapack.eselect.5:
-	* man/mailer.eselect.5:
-	* man/opengl.eselect.5:
-	* man/profile.eselect.5: Use man macros.
-
-	* modules/news-tng.eselect: Yet another module for reading GLEP 42
-	news items. Rewritten from scratch.
-	* man/news-tng.eselect.5: New man page.
-	* modules/Makefile.am (safe_scripts):
-	* man/Makefile.am (man_MANS): Update.
-
-	* libs/package-manager.bash.in (get_repo_news_dir): New function.
-	(get_news_dir_name): Call get_repo_news_dir.
-
-	* libs/Makefile.am (dosed): Remove Paludis substitution, it is
-	unused since the change of 2008-01-28.
-
-2009-04-23  Ulrich Mueller  <ulm@gentoo.org>
-
-	* libs/package-manager.bash.in (package-manager):
-	Rename ESELECT_PACKAGE_MANAGER_CACHE to ESELECT_PACKAGE_MANAGER
-	and don't export it. Prefer Portage over Paludis.
-
-	* libs/output.bash.in (get_column_width): Default to a width of
-	80 characters, not 79.
-
-	* modules/modules.eselect (do_list): Assign the name of the module
-	to ESELECT_MODULE_NAME, bug 220116.
-
-	* modules/env.eselect (describe_update_parameters):
-	Add "noldconfig" parameter.
-
-	* man/eselect.1: Update, "list-modules" is now "modules list".
-
-	* man/rc.eselect.5: Document latest changes in "show" action.
-
-	* man/eselect.1:
-	* man/bashcomp.eselect.5:
-	* man/env.eselect.5:
-	* man/kernel.eselect.5:
-	* man/rc.eselect.5: Fix usage of bold and italic text. Fix title.
-	Use man macros instead of low-level roff formatting.
+	* man/opengl.eselect.5: Use man macros.
 
 2009-04-21  Ulrich Mueller  <ulm@gentoo.org>
 
-	* libs/core.bash.in (do_action): Call "shift" twice instead of
-	"shift 2" since there may be only one parameter.
-
-	* libs/path-manipulation.bash.in (basename, dirname)
-	(canonicalise): Quote arguments to make functions whitespace safe.
-
-	* modules/modules.eselect (do_list, do_has): Fix quoting.
-
 	* modules/compiler.eselect.in: Remove dead module.
-
-	* modules/rc.eselect (do_show): Add --all option. No need for an
-	extra subshell; do_action already calls us from one.
-	(describe_show_options): Document it.
-
-2009-04-20  Ulrich Mueller  <ulm@gentoo.org>
-
-	* libs/tests.bash.in (has): Quote $@ in order to expand positional
-	parameters correctly.
-
-	* modules/rc.eselect (source_rc_functions, get_runlevel):
-	New functions for OpenRC (and baselayout-1) support.
-	(RC_SVCDIR, rc_svcdir): Removed.
-	(do_show): Function completely rewritten; use the common API
-	of baselayout-1 and OpenRC. Thanks to Sebastian Günther
-	<samson@guenther-roetgen.de> in bug 180966.
-	(describe_show, describe_show_parameters, describe_show_options):
-	Document optional "runlevel" parameter of do_show().
-
-	* libs/editor-variable.bash.in:
-	* modules/editor.eselect:
-	* modules/visual.eselect:
-	* modules/pager.eselect: New modules and library, managing the
-	EDITOR, VISUAL and PAGER environment variables; bug 190216.
-	* man/editor.eselect.5:
-	* man/visual.eselect.5:
-	* man/pager.eselect.5: New man pages.
-	* libs/Makefile.am (eselectlibs_SCRIPTS, EXTRA_DIST):
-	* modules/Makefile.am (safe_scripts):
-	* man/Makefile.am (man_MANS): Add the new files.
 
 2009-04-19  Thomas Anderson <gentoofan23@gentoo.org>
 
 	* modules/opengl.eselect: Fix removal of symlinks when the symlink is
 	broken. Thanks to Maximilian Grothusmann in bug #228547. Fixes: #228547
 
-2009-04-18  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/rc.eselect (do_delete): Don't die if the script is no
-	longer in /etc/init.d/. Fixes bug 156866.
-	(describe_add_parameters, describe_delete_parameters): Suppress
-	newlines.
-
-	* AUTHORS: Add fauli and myself for the ctags and emacs modules.
-
-	* bin/eselect.in: Remove all alias definitions. Unset functions
-	and variables that are known to cause trouble. Fixes bug 155814.
-
-2009-04-17  Ulrich Mueller  <ulm@gentoo.org>
-
-	* libs/core.bash.in (die): Eliminate pgrep call; just kill the
-	main process and exit.
-
-	* bin/eselect.in (ec_do_list-modules): Use do_action for calling
-	the module, not eselect. Quote "$@".
-	(ESELECT_KNOWN_OPTIONS): Treat 'help' and 'version' options as if
-	they were actions. Fixes bug 153890.
-	(trap): Redirect exit message to stderr.
-
-	* modules/modules.eselect: Don't inherit 'output' and 'tests',
-	since they are already inherited by the main script, and for
-	consistency with other modules.
-	(describe_add, describe_add_parameters, do_add): Commented out.
-
-	* libs/output.bash.in (colours): New function, initialise colour
-	escape sequences. Don't initialise them in global scope any more.
-	* bin/eselect.in: Call 'colours' if stdout is a tty, otherwise
-	call 'nocolours'.
-
-	* modules/env.eselect (is_envfile): Define POSIXLY_CORRECT for
-	'file' in order to dereference symbolic links. Bug 240402.
-
-2009-04-16  Ulrich Mueller  <ulm@gentoo.org>
-
-	* libs/output.bash.in (write_kv_list_entry): Fix logic for
-	insertion of spaces between words, bug 260464.
-
-	* libs/config.bash.in (store_config): Split config file content
-	on newlines only, not on all whitespace. Fixes bug 219864.
-
-	* misc/eselect.bashcomp (_eselect): Suppress 'Killed' message.
-	Don't match regexps on escape sequences. Fixes bug 218557.
-
-	* libs/core.bash.in (die): Suppress error messages from pgrep
-	and kill, bugs 174354 and 264734.
-
-2009-04-15  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/rc.eselect (do_add): Don't symlink into ROOT. Patch by
-	Matthijs Kooijman in bug 204937.
-
-	* libs/output.bash.in (get_column_width): Don't call stty if
-	standard output is not a terminal. Bug 198461.
-
-2009-04-14  Ulrich Mueller  <ulm@gentoo.org>
-
-	* libs/output.bash.in (write_list_start): Add quotes to prevent
-	globbing, fixes bug 232874.
-
-	* bin/eselect.in (ESELECT_DATA_PATH): Remove trailing slant,
-	fixes bug 203114.
-
-2009-04-13  Ulrich Mueller  <ulm@gentoo.org>
-
-	* libs/output.bash.in (COLOUR_NORMAL, COLOUR_BOLD, COLOUR_HI)
-	(COLOUR_WARN, COLOUR_ERROR, COLOUR_LIST_HEADER)
-	(COLOUR_LIST_LEFT, COLOUR_LIST_RIGHT): Initialise with tput,
-	in a terminal independent way, bug 198461.
-
-	* bin/eselect.in: Disable colour output if stdout is not a tty,
-	bug 198461.
-
-2009-04-08  Jeremy Olexa  <darkside@gentoo.org>
-
-	* modules/profile.eselect (do_show, do_list):
-	Make 'eselect profile show' show the relative path. Patch by
-	Thomas Bellman in bug 248487.
-
-	* modules/profile.eselect (set_symlink): Allow parent profiles
-	to be selectable, patch by Thomas Bellman in bug 248470.
-
-2008-06-01  Ulrich Mueller  <ulm@gentoo.org>
-
-	* man/binutils.eselect.5: Fix typo, bug 172636.
-
-	* man/eselect.1: Fix man section, bug 172636.
-
-2008-03-24  Ulrich Mueller  <ulm@gentoo.org>
-
-	* modules/emacs.eselect, modules/ctags.eselect:
-	* man/emacs.eselect.5, man/ctags.eselect.5: Import the emacs and
-	ctags modules from the Emacs SVN repository (r1030), corresponding
-	to the eselect-emacs-1.3 release.
-
-2008-01-28 Piotr Jaroszyński <peper@gentoo.org>
-
-	* configure.ac, libs/paludis.bash.in: Check for paludis binary at
-	runtime.
-
-2007-12-02 Piotr Jaroszyński <peper@gentoo.org>
-
-	* NEWS: Merge NEWS from branch-1.0.x and add trunk section with
-	current changes.
-
-2007-12-01 Piotr Jaroszyński <peper@gentoo.org>
-
-	* NEWS: Add missing news entry for 1.0.10.
-
 2007-11-30 Piotr Jaroszyński <peper@gentoo.org>
 
-	* libs/config.bash.in, modules/env.eselect, modules/esd.eselect,
-	+modules/timidity.eselect, NEWS: Merge various changes from 1.0.x
-	branch.
-
-2007-11-27 Piotr Jaroszyński <peper@gentoo.org>
-
-	* libs/package-manager.bash.in, libs/paludis.bash.in,
-	libs/portage.bash.in: Add stuff to be used by new eselect-news.
+	* modules/esd.eselect, modules/timidity.eselect: Merge various
+	changes from 1.0.x branch.
 
 2007-10-27 Jeremy Huddleston <eradicator@gentoo.org>
 
@@ -577,40 +36,9 @@
 	2004.3 amd64 profile.  Improved support for cleaning up after
 	switching away from newer nvidia drivers.
 
-2007-09-21 Donnie Berkholz <dberkholz@gentoo.org>
-
-	* libs/skel.bash.in: (#189942) Allow resetting to the current
-	implementation, so changes to the symlink map can propagate.
-
-2007-03-08 Mike Kelly <pioto@gentoo.org>
-
-	* man/Makefile.am: Really really really fix parallel install.
-
-2007-02-28 Mike Kelly <pioto@gentoo.org>
-
-	* bin/Makefile.am, man/Makefile.am: Undo the most recent "fix".
-
 2007-02-28 Mike Kelly <pioto@gentoo.org>
 
 	* modules/vi.eselect: Clean up vi.eselect a bit.
-
-2007-02-27 Danny van Dyk <kugelfang@gentoo.org>
-
-	* bin/Makefile.am, man/Makefile.am: Fix symlink creation for real now.
-	* modules/env.eselect: Fix parsing of *_SEPARATED.
-
-2007-01-29 Mike Kelly <pioto@gentoo.org>
-
-	* bin/Makefile.am, man/Makefile.am: Fix symlink creation.
-
-	+ Fixes: #163915
-
-2007-01-15 Mike Kelly <pioto@gentoo.org>
-
-	* bin/Makefile.am: Really fix parallel install. From r353 in
-	branches/branch-1.0.x/
-
-	+ Fixes: #162008
 
 2006-11-24 Diego Pettenò <flameeyes@gentoo.org>
 
@@ -624,28 +52,6 @@
 	* modules/myspell.eselect: As for oodict.eselect; also add a
 	command "default" for setting system-wide default dictionary.
 
-2006-11-13 Mike Kelly <pioto@gentoo.org>
-
-	* configure.ac, libs/Makefile.am, Makefile.am, modules/Makefile.am:
-	Fix distcheck.
-
-2006-10-28 Danny van Dyk <kugelfang@gentoo.org>
-
-	* bin/eselect.in: Add a new envvar for the default modules path.
-	* libs/core.bash.in: Make inherit() remember the libs it already
-	processed and don't source them again.
-	* modules/modules.eselect: Clean up a bit. Change add action to not
-	check for root.
-
-2006-10-28 Mike Kelly <pioto@gentoo.org>
-
-	* modules/Makefile.am: Add modules.eselect to Makefile.am.
-
-2006-10-28 Mike Kelly <pioto@gentoo.org>
-
-	* modules/modules.eselect: Add a new module, for listing, querying,
-	and installing eselect modules.
-
 2006-10-26 Timothy Redaelli <drizzt@gentoo.org>
 
 	* modules/whois.eselect: Make a missing man page just cause a
@@ -657,35 +63,14 @@
 	* modules/vi.eselect: Make a missing man page just cause a warning (to
 	work with folks who use FEATURES=noman, etc).
 
-2006-10-24 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/core.bash.in: Fix bug #152662. Thanks to Roy Marples
-	<uberlord@gentoo.org> for finding and Mike Kelly <pioto@gentoo.org>
-	for reporting it.
-	* modules/env.eselect: Fix bug #152318. Thanks to Jason Stubbs
-	<jstubbs@gentoo.org> for report and patch.
-
 2006-10-23 Timothy Redaelli <drizzt@gentoo.org>
 
 	* modules/whois.eselect: Added whois module.
-
-2006-10-22 Danny van Dyk <kugelfang@gentoo.org>
-
-	* configure.ac: Changed version to 1.1.0. (development branch)
-	* libs/config.bash.in: Fix quotation in load_config().
 
 2006-10-22 Mike Kelly <pioto@gentoo.org>
 
 	* modules/vi.eselect: Clean up and add proper support for non-gzip- or
 	bzip2-compressed man pages.
-
-2006-10-21 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/env.eselect: Clean up and fix bug #151701.
-	* libs/paludis.bash.in, libs/package-manager.bash.in: Fix some bugs
-	and general cleanup. Complete package manager abstraction.
-	* doc/developer-guide.txt: Update developer documentation to reflect
-	API changes.
 
 2006-10-17 Mike Kelly <pioto@gentoo.org>
 
@@ -701,71 +86,18 @@
 
 	* modules/opengl.eselect: Fix when ROOT != /.
 
-2006-10-03 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/binutils.eselect: Finally fixed bug #149627.
-	* libs/paludis.bash.in: Fixed typo.
-	* configure.ac: Changed version to 1.0.6.
-	* libs/core.bash.in: Tweaked die function to have a nicer output.
-	* Tagged 1.0.6 release.
-
 2006-10-02 Mike Kelly <pioto@gentoo.org>
 
 	* modules/vi.eselect: Apply fix from bug #147857.
 
-2006-01-10 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/binutils.eselect: Fixed bug #149627. Thanks to
-	Charlie Shepherd for finding this.
-
-2006-09-22 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/profiles.eselect: Fixed bug #148534 by inheriting
-	package-manager. Thanks to Mike Kelly <pioto@gentoo.org>.
-
-2006-09-20 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/config.bash.in: Fixed whitespaces and bug #147930.
-	* libs/core.bash.in: Enhanced die function to SIGKILL eselect if
-	SIGTERM failed.
-
 2006-09-19 Mike Kelly <pioto@gentoo.org>
 
 	* modules/vi.eselect: Add support for vile, xvile, and elvis.
-	* modules/Makefile.am: Remove the vi.eselect module, so it isn't
-	distributed with the main eselect code.
-
-2006-09-17 Danny van Dyk <kugelfang@gentoo.org>
-
-	* man/rc.eselect.5: Fixed bug #144882.
-
-2006-08-30 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/output.bash.in: Fix bug #140633 by adding missing quoting in
-	write_{kv,numbered}_list_entry.
-	* modules/rc.eselect: Add 'reload' action as requested in bug #144152.
-
-2006-08-26 Danny van Dyk <kugelfang@gentoo.org>
-
-	* Tagged 1.0.5 release.
 
 2006-08-21 Danny van Dyk <kugelfang@gentoo.org>
 
 	* modules/compiler.eselect.in: Fix previous accidental commit of local
 	changes. Reverted to r271.
-
-2006-08-17 Donnie Berkholz <dberkholz@gentoo.org>
-
-	* libs/skel.bash.in: Small usability tweak -- change printed
-	references from "libdir" to "library directory."
-
-2006-08-17 Donnie Berkholz <dberkholz@gentoo.org>
-
-	* libs/skel.bash.in: Ensure that there are implementations available
-	in a given libdir before executing code that assumes so. Reported
-	by Danny van Dyk. Add some comments in this area too, since the code
-	can take a little time to parse.
-	* ChangeLog: Change a couple references to my old nick.
 
 2006-08-06 Kevin F. Quinn <kevquinn@gentoo.org>
 
@@ -780,43 +112,10 @@
 	installation area.  Bug #139422
 	Set properties, cleaned up help text.
 
-2006-08-04 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/kernel.eselect: Fix Bug #141106: list action doesn't
-	highlight currently the currently selected sources.
-
-2006-08-03 Danny van Dyk <kugelfang@gentoo.org>
-
-	* Tagged 1.0.4 release.
-
-2006-08-02 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/paludis.bash.in, libs/package-manager.bash.in: Remove
-	paludis-repo(). Fix paludis-envvar(). Finish envvar() unction.
-	* configure.ac: Set version to 1.0.4.
-	* modules/config.eselect, modules/binutils.eselect: Convert to
-	envvar().
-	* autogen.bash: Fix autogen.bash to be able to use autoconf-2.60.
-
-2006-07-16 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/paludis.bash.in, libs/package-manager.bash.in: Convert to
-	envvar() call. envvar() now needs a package qualifier as first
-	parameter.
-	* autogen.bash: New autogen tool to correctly use autoconf-2.60.
-
-2006-07-15 Donnie Berkholz <dberkholz@gentoo.org>
-
-	* libs/skel.bash.in: Fix check for whether implementations are
-	available before attempting to switch to them. This fixes
-	switching based on name rather than number.
-
 2006-07-07 Kevin F. Quinn <kevquinn@gentoo.org>
 
 	* modules/tbirddict.eselect: Fixed default thunderbird;
 	directory; bug #139422 - thanks Rodolphe Rocca
-
-2006-07-07 Kevin F. Quinn <kevquinn@gentoo.org>
 
 	* modules/tbirddict.eselect: new module to support dictionary
 	installation for Mozilla Thunderbird; bug #139422
@@ -831,26 +130,10 @@
 
 	* modules/opengl.eselect: Updated ebuild version number.
 
-2006-07-03 Danny van Dyk <kugelfang@gentoo.org>
-
-	* Tagged 1.0.3 release.
-
 2006-07-01 Danny van Dyk <kugelfang@gentoo.org>
 
-	* libs/portage.bash.in, libs/paludis.bash.in,
-	libs/package-manager.bash.in, libs/Makefile.am, configure.ac: Added
-	support for other package managers than portage. Public functions are
-	part of package-manager.bash. paludis.bash and portage.bash provide
-	private backend functions.
-
-	* modules/profile.eselect: Marked as portage-only module.
-
-	* modules/opengl.eselect, modules/binutils.eselect: Change from
-	inherit portage to inherit package-manager.
-
-	* modules/rc.eselect: Fix bug in list_runlevels(). Respect setting of
-	${svcdir} in /etc/rc.conf. Add support to show() runlevels other than
-	the current.
+	* modules/opengl.eselect: Change from inherit portage to inherit
+	package-manager.
 
 2006-06-21 Kevin F. Quinn <kevquinn@gentoo.org>
 
@@ -863,30 +146,15 @@
 
 2006-06-18 Donnie Berkholz <dberkholz@gentoo.org>
 
-	* libs/skel.bash.in, libs/Makefile.am, doc/developer-guide.txt:
-	Add a new skel.bash library for easy implementation of the simpler
-	cases of switching, and document it.
-
 	* modules/blas.eselect, modules/cblas.eselect, modules/lapack.eselect,
 	man/blas.eselect.5, man/cblas.eselect.5, man/lapack.eselect.5:
 	Use the skel.bash library to create new eselect modules for blas,
 	cblas and lapack. Update documentation to reflect this.
 
-	* modules/Makefile.am, man/Makefile.am:
-	The new blas/cblas/lapack modules will be installed as standalone
-	packages, so remove them from Makefile.am files.
-
 2006-06-13 Kevin F. Quinn <kevquinn@gentoo.org>
 
 	* modules/oodict.eselect: Clean up output when dictionaries are
 	installed outside of myspell ebuilds. See bug #135520 comment 4.
-
-2006-06-11 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/env.eselect: Fixed handling of files in /etc/env.d/ which
-	are untruly detected as non-plain-text by file utility (see bug
-	#130098). Fixed generation of /etc/profile.csh (see bug #136111).
-	Thanks to Patrick MacLean <chutzpah@gentoo.org> for both fixes.
 
 2006-06-10 Jeremy Huddleston <eradicator@gentoo.org>
 
@@ -903,126 +171,16 @@
 	* modules/oodict.eselect: New module for managing dictionaries with
 	OpenOffice.org.  See bug #132247.
 
-2006-04-14 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/config.bash: Fixed creation of empty configfile.
-	* modules/kernel.eselect: Applied enhancement patch by Diego Petteno
-	<flameeyes@gentoo.org>. kernel.eselect can now be called using 'uname
-	-r' as an argument. See bug #128703.
-	* Tagged 1.0.2 release.
-
-2006-04-03 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/env.eselect: Don't die if ${ROOT}/etc/profile.env does not
-	exist.
-
-2006-04-01 Danny van Dyk <kugelfang@gentoo.org>
-
-	* Tagged 1.0.1 release.
-	* configure.ac: Fixed substitution of CANONICALISE.
-	* modules/env.eselect: Fixed calls to canonicalise().
-	* modules/kernel.eselect: Fixed output of show action.
-
-2006-03-31 Danny van Dyk <kugelfang@gentoo.org>
-
-	* configure.ac: Fixed some BSD issues in regard to CANONICALISE.
-	Thanks to Diego Petteno <flameeyes@gentoo.org> for the patch.
-
 2006-03-30 Danny van Dyk <kugelfang@gentoo.org>
 
-	* modules/binutils.eselect: Cleaned up the Coding Style a bit.
-	* libs/path-manipulation.bash.in, doc/developer-guide.txt,
-	configure.ac: Added support for the canonicalise function, a wrapper
-	to either GNU readlink or realpath.
-	* modules/binutils.eselect, modules/blas.eselect,
-	modules/config.eselect, modules/env.eselect, modules/kernel.eselect,
-	modules/lapack.eselect, modules/mailer.eselect,
-	modules/oracle.eselect, modules/profile.eselect, modules/rc.eselect,
-	modules/ruby.eselect, modules/vi.eselect: Converted to use
-	canonicalise() instead of readlink -f. This ensure portability of
-	eselect to *BSD.
+	* modules/oracle.eselect, modules/ruby.eselect,
+	modules/vi.eselect: Converted to use canonicalise() instead of
+	readlink -f. This ensure portability of eselect to *BSD.
 
 2006-03-25 Tobias Scherbaum <dertobi123@gentoo.org>
 
 	* modules/oracle.eselect: Added oracle module.  Not adding to
 	Makefile.am as it's not going to be installed with the base package.
-
-2006-03-09 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/binutils.eselect, man/binutils.eselect.5: Added show action.
-	* configure.ac: Updated version to 1.0.1 for pending release.
-
-2006-03-08 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/env.eselect: Fixed a typo (chmod g+r instead of chmod a+r).
-	* modules/blas.eselect, modules/lapack.eselect: Added option
-	descriptions for action 'set'.
-	* modules/env.eselect: Added FreeBSD patch written by Diego Petteno.
-	* man/binutils.eselect.5, man/blas.eselect.5, man/env.eselect.5,
-	lapack.eselect.5, man/rc.eselect.5: Synchronized the manpages with the
-	current state of the repository.
-
-2006-03-04 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/rc.eselect: Fixed a bug in the is_script() function.
-	With this change the 'show' action works again.
-	* modules/kernel.eselect: Fixed trailing slashes in the 'show' action.
-
-2006-03-01 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/env.eselect: Fixed bug #124472. env.eselect now uses a
-	temporary file, honours a symlinked profile.env and fixes
-	permissions on the final profile.env.
-
-2006-02-09 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* Tagged 1.0 release.
-	* libs/core.bash.in: Fix die filenames, thanks to Donnie Berkholz.
-
-2005-12-18 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/env.eselect: Fixed bug #114778: restrict load_config()
-	to textfiles with proper contents.
-	* libs/multilib.bash.in: Fixed bug #114274: don't rely on a hardcoded
-	table of libdirs but scan ld.so.conf for them instead.
-	* modules/blas.eselect, modules/lapack.eselect: Fixed bug #115548:
-	make commands list, show and set scan if scan hasn't been previously
-	run.
-
-2005-12-17 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* modules/output.bash.in: Fix nocolour, Gentoo bug #115677.
-
-2005-12-06 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/rc.eselect: Fixed Bug in is_script() to detect symlinked
-	init scripts like net.ethX -> net.eth0 properly.
-
-2005-11-17 Aaron Walker <ka0ttic@gentoo.org>
-
-	* docs/developer-guide.txt: Fix title underline length since the
-	length of the title changed (add_config => append_config).
-
-2005-11-16 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/config.bash.in, docs/developer-guide.txt: Changed add_config()
-	to append_config(). Function now doesn't append data if it occurs
-	already in the value.
-	* libs/multilib.bash.in: Removed lib from list of amd64 libdirs.
-	* modules/blas.eselect, modules/lapack.eselect: Added support for
-	MKL72. Some cleanup of Bugs and untidy work.
-
-2005-11-01 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* bin/eselect.in: Add read- and -reader symlink module name decoding
-	voodoo options.
-
-2005-10-30 Aaron Walker <ka0ttic@gentoo.org>
-
-	* libs/output.bash.in: Updated write_kv_list_entry with several bug
-	fixes: now handles args with leading whitespace appropriately, doesn't
-	append a ' ' onto the end of lines, displays the value on the next
-	line if key is too long.
 
 2005-10-29 Thomas Matthijs <axxo@gentoo.org>
 
@@ -1034,89 +192,11 @@
 
 	* modules/opengl.eselect: Added missing inherit config
 
-2005-10-19 Aaron Walker <ka0ttic@gentoo.org>
-
-	* libs/output.bash.in: Use ${#indent} instead of a literal '28'.
-
-	* Tagged 1.0_rc1 release.
-	* libs/output.bash.in: Modified write_kv_list_entry to properly wrap
-	lines that are longer than the current terminal width.
-	* man/bashcomp.eselect.5: Added --global as a possible option for the
-	'list' action.
-	* modules/env.eselect: Added describe_update_options and
-	describe_update_parameters.
-
-2005-10-18 Aaron Walker <ka0ttic@gentoo.org>
-
-	* modules/rc.eselect: Added missing space after the '1' in
-	"[[ ${#@} -gt 1]]" which caused an unexpected EOF in do_restart().
-	* configure.ac, Makefile.am, doc/Makefile.am: Added check for rst2html
-	and don't assume it is installed as 'rst2html.py' as most other
-	distro's/OS's install it without the .py extension.  Also, don't
-	bail if portageq isn't found as eselect is supposed to be usable even
-	on non-Gentoo systems.
-	* libs/output.bash.in, doc/developer-guide.txt: Added
-	write_warning_msg function. Similar to write_error_msg but uses "!!!
-	Warning" and ${COLOUR_WARN}.
-	* libs/portage.bash.in: Have arch() use new write_warning_msg to print
-	a warning and return 1 if it cannot determine the arch instead of
-	die()'ing as the caller may want to do something anyways and exit
-	successfully ("eselect profile set --force" for example).  Also fixed
-	errant 'i' in '[[ -z ${ROOT}i ]]' and also fixed indenting.
-	* modules/profile.eselect: Check the return value of arch() and
-	find_targets() and bail if necessary.
-
-2005-10-17 Aaron Walker <ka0ttic@gentoo.org>
-
-	* configure.ac: Update version to 1.0_rc1 for pending release.
-	* Makefile.am, man/Makefile.am, bin/Makefile.am: move 'symlinks'
-	variable declaration to top-level Makefile.am so both man/Makefile.am
-	and bin/Makefile.am can use it to generate symlinks (ie foo-config ->
-	eselect and foo.eselect.5 -> foo-config.1).
-	* modules/profile.eselect: Updated find_targets function to accept an
-	optional argument, portdir, so that if specified it doesn't need to
-	invoke portageq.  This prevents portageq from being invoked twice when
-	the 'set' action is executed.
-	* modules/kernel.eselect, modules/binutils.eselect,
-	modules/mailer.eselect: Add describe_set_options and
-	describe_set_parameters.
-	* modules/bashcomp.eselect: Add describe_list_options since it also
-	accepts --global.
-	* man/kernel.eselect.5: Added manual page for kernel.eselect.
-	* man/profile.eselect.5: Fixed a typo.
-	* modules/rc.eselect: Bail on actions that require parameters when the
-	user doesn't specify them.  Also added describe_action_options and
-	describe_action_parameters for each action that requires a parameter.
-	Also fixed vim ft s/ebuild/eselect/.
-	* bin/eselect.in: Bail if user specifies an invalid global option
-	instead of just ignoring it.
-
 2005-10-16 Jeremy Huddleston <eradicator@gentoo.org>
 
 	* modules/compiler.eselect.in: Added describe_*_{parameters,options}
 
-2005-10-16 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* modules/vi.eselect: Tidy up.
-
-2005-10-16 Jeremy Huddleston <eradicator@gentoo.org>
-
 	* modules/opengl.eselect: Added describe_set_{parameters,options}
-
-2005-10-16 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* doc/developer-guide.txt: Documentation for options and parameters.
-	* modules/bashcomp.eselect, modules/profile.eselect,
-	modules/cow.eselect: Implement actions and parameters.
-	* libs/default.eselect.in: Add describe_action_options and
-	describe_action_parameters support for default help action.
-	* libs/output.bash.in: Add -p option to write_ things.
-	* autogen.sh -> autogen.bash, doc/release-guide.txt, Makefile.am: Make
-	autogen work on systems with weirder autotools setups.
-
-2005-10-16 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/rc.eselect: Fixed Bug #106540.
 
 2005-10-06 Jeremy Huddleston <eradicator@gentoo.org>
 
@@ -1124,13 +204,6 @@
 	  a bug where selecting a non-native compiler removed the native
 	  binaries.  Use bin_prefix to determine reference file for timestamp
 	  which is needed for the alternate targets of multilib crosscompilers.
-
-2005-10-05 Aaron Walker <ka0ttic@gentoo.org>
-
-	* modules/profile.eselect: Add a --force option to 'set' sub-command
-	so that users can force a profile set even if the profile is not
-	recognized as valid.
-	* man/profile.eselect.5: Document --force.
 
 2005-10-05 Jeremy Huddleston <eradicator@gentoo.org>
 
@@ -1161,10 +234,6 @@
 
 	* modules/opengl.eselect: fixed ACTION->action
 
-2005-09-11 Aaron Walker <ka0ttic@gentoo.org>
-
-	* libs/multilib.bash.in: Don't use absolute paths to executables!
-
 2005-09-11 Danny van Dyk <kugelfang@gentoo.org>
 
 	* modules/ruby.eselect: Added ruby module, written by Michael Kohl
@@ -1172,15 +241,8 @@
 
 2005-09-10 Danny van Dyk <kugelfang@gentoo.org>
 
-	* bin/eselect.in: Fixed Bug in usage of has(). Thanks to Sven Wegener
-	<swegener@gentoo.org> for spotting this.
 	* man/opengl.eselect: Added manpage for opengl module.
-	* libs/portage.bash.in, libs/Makefile.am,
-	configure.ac, modules/binutils.eselect, modules/config.eselect,
-	modules/opengl.eselect, modules/profile.eselect: Added portage
-	library, moved profile.eselect:get_arch() to portage.bash:arch().
-	* doc/developer-guide.txt: Changed documentation according to API
-	changes (inherit / core.bash-split).
+	* modules/opengl.eselect: Added portage library.
 
 2005-09-05 Jeremy Huddleston <eradicator@gentoo.org>
 
@@ -1190,41 +252,13 @@
 
 2005-09-05 Danny van Dyk <kugelfang@gentoo.org>
 
-	* libs/core.bash.in: Added inherit() function that allows dynamic
-	and individual sourcing of libraries for each module.
-	* bin/eselect.in: Removed sourcing of all available libraries and set
-	up default libraries to inherit.
-	* libs/core.bash.in, libs/path-manipulation.bash.in, libs/Makefile.in:
-	Moved basename() and dirname() to a new separate library.
-	* libs/core.bash.in, libs/test.bash.in: moved has() and is_function()
-	to tests library.
-	* modules/binutils.eselect, modules/blas.eselect, modules/env.eselect,
-	modules/lapack.eselect, modules/opengl.eselect: Added necessary
-	inherit lines.
-
-2005-09-04 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/blas.eselect: Fixed a bug about setting implementation to
-	reference in case we had an active C implementation already. Storing
-	configuration will now be handled after the setup_*() step.
-	* modules/lapack.eselect: Storing configuration will now be handled
-	after the setup_*() step.
-	* modules/rc.eselect: Fixed a 'file not found' bug on bogus
-	baselayouts thanks to Mike Doty <kingtaco@gentoo.org>.
-
-2005-08-31 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/kernel.eselect: Fixed bug #104354. kernel.eselect now looks
-	only for linux-kernel directories w/o listing source directories of
-	additional drivers.
+	* modules/opengl.eselect: Added necessary inherit line.
 
 2005-08-23 Jeremy Huddleston <eradicator@gentoo.org>
 
 	* modules/compiler.eselect.in: Added eselect module for the
 	forthcoming compiler-config-2.0 (formerly gcc-config).  It is alpha
 	code and currently only supports set and list actions.
-
-2005-08-23 Jeremy Huddleston <eradicator@gentoo.org>
 
 	* modules/opengl.eselect: Fixed a bug in creating symlinks to header
 	files.
@@ -1233,411 +267,3 @@
 
 	* modules/opengl.eselect: Added opengl module.  Not adding to
 	Makefile.am as it's not going to be installed with the base package.
-
-2005-08-08 Aaron Walker <ka0ttic@gentoo.org>
-
-	* man/bashcomp.eselect.5: Add missing description of --global flag.
-
-2005-07-25 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/Makefile.am: Moved binutils.eselect out of dodgy-scripts.
-	* modules/binutils.eselect: Removed outdated comments.
-	* Tagged 0.9.6 release.
-	* NEWS: Added 0.9.6 release news.
-	* configure.ac: Updated version number.
-	* man/Makefile.am, man/binutils.eselect.5: Added manpage for binutils
-	module.
-	* modules/binutils.eselect, modules/env.eselect: Check for sane
-	parameters and root access.
-
-2005-07-23 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/config.bash.in: Fixed a condition in store_config as it needs at
-	least 2 parameters, not 3.
-	* modules/env.eselect: Removed check on storing empty vars. Added
-	support for updating ld.so.cache. Added a mtime database for all items
-	of LDPATH. Fixed last bugs that kept it in dodgy-scripts.
-	* modules/Makefile.am: Removed env.eselect from dodgy-scripts.
-	* man/env.eselect.5, man/Makefile.am: Added a manpage for env.eselect.
-	* modules/binutils.eselect: Uses env.eselect now instead of env-update.
-	Fixed condition for environment updates.
-
-2005-07-19 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/core.bash.in: Fixed order of parameters.
-	* modules/blas.eselect, modules/env.eselect, modules/lapack.eselect:
-	Fixed all calls to has() due to change of parameter order.
-	* modules/env.eselect: Tidied code up, add prelink.conf code. These
-	file are now sanely created: /etc/profile.env, /etc/ld.so.conf,
-	/etc/prelink.conf.
-	* module/env.eselect: Removed LDPATH from inclusion into profile.env.
-
-2005-07-16 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/env.eselect: Fixed a 'first element of array'-type bug.
-	ld.so.conf creation is now fully functional.
-
-2005-07-12 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/env.eselect, modules/Makefile.am: Added initial env module.
-
-2005-07-03 Aaron Walker <ka0ttic@gentoo.org>
-
-	* libs/core.bash.in: Added dirname/basename wrapper functions which use
-	bash instead of launching their external counterparts.
-	* modules/bashcomp.eselect: Use basename instead of ${var##*/}
-	constructs.
-
-2005-06-19 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/output.bash.in: Watch out for escaped spaces and concatenate
-	items accordingly. Fixes BUG #95886.
-	* modules/binutils.eselect: Removed the echo before each ln call to
-	enable it. Fixed the order of is_active() and loading of VERSION and
-	TARGET. Added a check on whether the selected profile exists in
-	/etc/env.d/binutils/.
-
-2005-06-18 Aaron Walker <ka0ttic@gentoo.org>
-
-	* Tagged 0.9.5 release.
-	* acinclude.m4: Added ES_PROG_GNU_SED macro for checking the path to
-	GNU sed.  This allows eselect to work on platforms where GNU sed is
-	"gsed" not "sed".
-	* configure.ac: Update version; added call to our new ES_PROG_GNU_SED
-	macro.
-	* libs/core.bash.in: Added 'sed() { @SED@ $* ; }' so that everything
-	else transparently uses GNU sed.
-	* libs/output.bash.in: Fixed typo in write_kv_list_entry() that caused
-	misaligned value text.
-	* bin/eselect.in: Added missing 'shift' when unrecognized global
-	options are encountered.  Otherwise an infinite loop occurs if a user
-	specifies one.  Also added ec_do_list-options() and updated
-	ec_do_help() to call it.
-	* bin/Makefile.am: Add bashcomp-config to symlinks list.
-	* doc/developer-guide.txt: Fixed headers so that it'll compile.
-	* modules/bashcomp.eselect: Fixed bug if do_list is passed an argument
-	besides --global.
-	* man/eselect.1: updated usage info with global options. Added OPTIONS
-	section where global options will be described.
-	* README, man/profile.eselect.5: Fixed minor typo.
-	* man/Makefile.am, man/bashcomp.eselect.5: Added manual page for
-	bashcomp.eselect.
-	* misc/eselect.bashcomp: Parse 'eselect help' instead of 'eselect
-	list-modules' so that we can pick up supported global options and add
-	them to possible completions.  This means we *never* will have to edit
-	this file when we add new global options.
-	* Makefile.am: Added html target to generate HTML for TODO and README
-	in addition to those in doc/.
-	* modules/blas.eselect, modules/lapack.eselect: Don't hardcode the
-	path to readlink.  Also, fixed a few libblas -> libcblas typo's on
-	Kugelfang's behalf.
-
-2005-06-17 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/output.bash.in: Moved back to use COLOUR_* envvars instead of a
-	function, as the latters slows down eselect. Also,
-	write_kv_list_entry() and write_numbered_list_entry() now use space().
-	* bin/eselect.in: Introduced new var which holds all known global
-	options. The global option parser now checks for those.
-
-2005-06-16 Aaron Walker <ka0ttic@gentoo.org>
-
-	* misc/eselect.bashcomp: Updated to take global options into
-	consideration.
-	* bin/eselect.in: recognize the us'ian --no-color in addition to
-	--no-colour.
-	* libs/output.bash.in: fixed bug in nocolour handling that caused
-	literal interpretation of '*' in $(highlight '*') thus causing the
-	contents of the ${PWD} to be displayed instead.
-	* doc/release-guide.txt: Removed the now irrelevant section on
-	doing the release on berlios.
-
-2005-06-15 Shyam Mani <fox2mike@gentoo.org>
-	* doc/developer-guide.txt: Removed redundant sections and fixed up a
-	bit of RST. This will be the version that initial GuideXML will sync
-	with.
-
-2005-06-15 Aaron Walker <ka0ttic@gentoo.org>
-
-	* modules/bashcomp.eselect: Rewrote most of the module.  Removed
-	do_show() since do_list now correctly identifies currently enabled
-	completions.  Also do_enable/do_disable now work with list numbers as
-	they should.
-
-2005-06-13 Aaron Walker <ka0ttic@gentoo.org>
-
-	* doc/release-guide.txt: Updated to mention updating configure.ac
-	version number.
-
-2005-06-13 Danny van Dyk <kugelfang@gentoo.org>
-
-	* Tagged 0.9.4 release.
-
-2005-06-13 Shyam Mani <fox2mike@gentoo.org>
-	* doc/overview.txt: Removed, since it is obsolete.
-	* doc/user-guide.txt: Updated with info which was in overview.
-
-2005-06-12 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/rc.eselect: Fix hardcoded path to ln.
-	* libs/config.bash.in: Restructured functions to take a filename as
-	first argument.
-	* modules/blas.eselect,modules/lapack.eselect: Fixed modules to
-	respect new syntax of *_config functions.
-	* doc/developer-guide.txt: Documented new behaviour of *_config
-	functions.
-	* modules/blas.eselect,modules/lapack.eselect,modules/profiles.eselect:
-	The list action now marks active options with a highlighted *.
-	* modules/binutils.eselect: Added initial and unfunctional version of
-	binutils.eselect.
-
-2005-06-08 Danny van Dyk <kugelfang@gentoo.org>
-
-	* bin/eselect.in: Added handling of global options in main code.
-	* libs/core.bash.in: Removed COLOUR_* vars.
-	* libs/output.bash.in: Added function colours() which replaces all
-	${COLOURS_*} uses and respects the --no-colour option.
-	* docs/developer-guide.txt,docs/user-guide.txt: Added reference to
-	global options and --no-colour.
-
-2005-06-07 Danny van Dyk <kugelfang@gentoo.org>
-
-	* Renamed to 'eselect'.
-	* Moved to Gentoo infrastructure.
-
-2005-05-26 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/rc.eselect: Added actions start, stop, restart and pause.
-
-2005-05-16 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* bin/Makefile.am: Install symlinks for kernel-config, profile-config,
-	rc-config
-	* libs/output.bash.in: Make highlighting work with bash-2.
-
-	* Tag 0.9.3 release.
-	* doc/overview.txt, doc/Makefile.am: Add an 'overview' document.
-	* configure.ac, modules/Makefile.am: Add --enable-dodgy-modules to
-	install incomplete / experimental things (config, cow, vi).
-
-2005-05-16 Tom Martin <slarti@gentoo.org>
-
-	* modules/mailer.eselect: Handle no available targets. Mark the
-	currently active profile when doing list.
-
-2005-05-15 Aaron Walker <ka0ttic@gentoo.org>
-
-	* man/Makefile.am: Add missing manual page.
-
-2005-05-15 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* modules/config.eselect, modules/cow.eselect,
-	modules/mailer.eselect, modules/lapack.eselect,
-	modules/bashcomp.eselect, modules/vi.eselect,
-	modules/kernel.eselect, modules/profile.eselect,
-	modules/blas.eselect, modules/rc.eselect: Switch vim modelines to
-	use eselect rather than ebuild as the filetype.
-	* modules/kernel.eselect: Handle no available targets. Mark the
-	currently active kernel symlink when doing list.
-	* libs/core.bash.in: Don't allow eval, since it's evil and leads to
-	horridly broken code.
-
-2005-05-14 Aaron Walker <ka0ttic@gentoo.org>
-
-	* libs/core.bash.in: Updated do_action() to display the correct usage
-	message depending on how eselect was invoked.
-
-2005-05-14 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* modules/mailer.eselect, modules/vi.eselect,
-	modules/kernel.eselect, modules/profile.eselect: Switch to use
-	is_number.
-	* modules/mailer.eselect: Make 'set by number' work.
-
-2005-05-14 Elfyn McBratney <beu@gentoo.org>
-
-	* bin/eselect.in: Support both -update and -updater suffixes.
-
-2005-05-14 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/rc.eselect: Do not show files ending in '~'. Added to the
-	Makefile.am, too.
-
-2005-05-12 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/mailer.eselect, modules/blas.eselect,
-	modules/lapack.eselect: Use SVN_DATE.
-	* module/rc.eselect: Added module rc.
-	* man/rc.eselect.5: Added manpage for module rc.
-	* modules/blas.eselect: Add preliminary support for "threaded-ATLAS".
-
-2005-05-10 Aaron Walker <ka0ttic@gentoo.org>
-
-	* modules/profile.eselect, modules/bashcomp.eselect: Use SVN_DATE.
-
-2005-05-10 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* autogen.sh: Make config dir if it's not there already.
-	* man/eselect.1: Include note about full docs.
-	* doc/developer-guide.txt: Document manip functions.
-	* modules/config.eselect, modules/cow.eselect, modules/vi.eselect,
-	modules/kernel.eselect: Update to use SVN date as the version number.
-	* libs/manip.bash.in, libs/Makefile.am, bin/eselect.in: Add manip
-	library for text manipulation functions. svn_date_to_version will
-	convert an SVN date string into a nice VERSION number.
-
-2005-05-09 Aaron Walker <ka0ttic@gentoo.org>
-
-	* misc/eselect.bashcomp: Parse list-modules/usage instead of relying
-	on the assumption that the default action will give us what we want.
-
-2005-05-09 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* configure.in -> configure.ac, autogen.sh: Switch to automake 1.9.
-	* TODO: Add TODO file. Future changes to this file won't go in to this
-	ChangeLog.
-	* AUTHORS, README: Move authors into the AUTHORS file.
-	* INSTALL: Add INSTALL file as per GNU rules.
-	* doc/developer-guide.txt: Update with new functions.
-	* doc/release-guide.txt: Add in an RST version of Aaron's "how to do
-	releases" document.
-
-	* Merge from branches/ciaranm/config:
-	* bin/eselect.in: Better prefix/suffix support. Now recognises
-	prefixes config-, update-, manage- and suffixes -config, -update,
-	-tool, -manager.
-	* libs/output.bash.in, libs/core.bash.in: Add highlight_warning
-	function.
-	* bin/eselect.in, libs/tests.bash.in, libs/Makefile.am: Add tests
-	library. Currently one function, is_number.
-	* libs/default.eselect.in: Allow show_extra_help_text as part of
-	the default help action. Show extra usage message if appropriate.
-	* modules/config.eselect, modules/Makefile.am: Add initial version of
-	the config plugin. Not production ready.
-
-2005-05-08 Aaron Walker <ka0ttic@gentoo.org>
-
-	* Makefile.am: no foreign.
-
-	* Tag 0.9.2 release.
-	* configure.in: Update version (0.9.2).
-	* modules/profile.eselect: Re-fix profile module since the
-	profile-symlink -> profile move reverted the changes.
-	* modules/bashcomp.eselect: do_show should return 0.
-	* bin/eselect.in, bin/Makefile.am: Use %VERSION%.
-
-2005-05-08 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* libs/output.bash.in, libs/core.bash.in: Add in somewhat experimental
-	text highlighting functionality.
-	* doc/developer-guide.txt: Document highlight function.
-
-2005-05-08 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/blas.eselect: update -> scan transition complete.
-	* modules/lapack.eselect: update -> scan. Fixed directory settings
-	for lapack-atlas and lapack-reference.
-
-2005-05-08 Tom Martin <slarti@gentoo.org>
-
-	* modules/mailer.eselect: Fix find_targets. If the glob didn't
-	match, it was interpreted as a literal string. Fix a stupid typo
-	(findi_targets -> find_targets).
-
-2005-05-07 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* Tag for release 0.9.1
-	* configure.in: Version is now 0.9.1.
-	* doc/user-guide.txt, doc-developer.txt: Clarify update and scan
-	action definitions, update formatting and wording.
-
-2005-05-07 Danny van Dyk <kugelfang@gentoo.org>
-
-	* doc/user-guide.txt: Added a first draft of the user docs.
-
-2005-05-07 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* doc/developer-guide.txt: Fix formatting, typos. Add a bit more about
-	how eselect works.
-	* doc/Makefile.am: Make this much more generic.
-	* misc/Makefile.am: Add Makefile.in to maintainer-clean targets.
-
-2005-05-07 Tom Martin <slarti@gentoo.org>
-
-	* man/mailer.eselect.5: Add a man page for mailer.eselect.
-	* modules/mailer.eselect: Add a check_dirs() function for
-	sanity checking /etc/mail/.
-
-2005-05-07 Danny van Dyk <kugelfang@gentoo.org>
-
-	* man/profile.eselect.5: Fixed typos.
-	* doc/developer-guide.txt: Added descriptions for the multilib.bash
-	and config.bash functions.
-
-2005-05-07 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* doc/: Add initial developer docs.
-	* libs/core.bash.in: Fix bug in has so that it is consistent with
-	portage syntax.
-	* modules/blas.eselect, modules/lapack.eselect: Update to new has
-	syntax.
-
-2005-05-07 Aaron Walker <ka0ttic@gentoo.org>
-
-	* modules/profile-symlink.eselect: Fix sed to use current
-	profiles.desc format. Also, ensure that explicitly specified profiles
-	are actually valid for the host arch.
-	* man/Makefile.am: Add missing manual pages.
-	* man/profile.eselect.5: Add missing '.br'.
-	* configure.in, Makefile.am, doc/Makefile.am: Added Makefile.am for
-	doc/ with html target.
-
-2005-05-07 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/output.bash.in: Added function 'space'.
-	* libs/default.eselect.in: Fixed do_usage to filter 'action'.
-	* man/blas.eselect: Added missing Section 'ACTION: SET'.
-	* man/lapack.eselect: Added a manpage for the lapack module.
-	* man/profile.eselect: Added a manpage for profile.
-	* modules/blas.eselect: Finalized this module.
-	* modules/lapack.eselect: Added lapack module.
-
-2005-04-25 Tom Martin <slarti@gentoo.org>
-
-	* modules/mailer.eselect: Added mailwrapper module.
-
-2005-04-11 Aaron Walker <ka0ttic@gentoo.org>
-
-	* man/Makefile.am: forgot to add $(man_MANS) to EXTRA_DIST.
-	* modules/profile.eselect: Added make.profile module.
-	* modules/bashcomp.eselect: Fixed do_list to ignore *~.
-	* misc/Makefile.am: Added Makefile.am.
-	* misc/eselect.bashcomp: Added eselect command-line completion.
-
-2005-04-10 Aaron Walker <ka0ttic@gentoo.org>
-
-	* man/Makefile.am: Added Makefile.am.
-
-2005-04-07 Danny van Dyk <kugelfang@gentoo.org>
-
-	* modules/blas.eselect: Added package information to outputs.
-	* man/blas.eselect.1: Added a manpage for the blas module.
-
-2005-04-04 Danny van Dyk <kugelfang@gentoo.org>
-
-	* man/eselect.1: Added a rudimental manpage.
-
-2005-03-24 Danny van Dyk <kugelfang@gentoo.org>
-
-	* libs/config.bash.in: Fixed store_config(), added add_config().
-	* libs/core.bash.in: Added function has().
-	* libs/multilib.bash.in: Added multilib library.
-	* modules/blas.eselect: Added blas module.
-
-2005-02-22 Aaron Walker <ka0ttic@gentoo.org>
-
-	* modules/bashcomp.eselect: Added bashcomp module.
-
-2005-02-22 Ciaran McCreesh <ciaranm@gentoo.org>
-
-	* ChangeLog: Start keeping a ChangeLog. GNU format.
