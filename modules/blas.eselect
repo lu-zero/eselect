@@ -1,3 +1,4 @@
+# -*-eselect-*-  vim: ft=eselect
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
@@ -11,5 +12,3 @@ DESCRIPTION="Manage installed $MODULE implementations"
 MAINTAINER="dberkholz@gentoo.org"
 SVN_DATE='$Date$'
 VERSION=$(svn_date_to_version "${SVN_DATE}" )
-
-# vim: set ft=eselect :

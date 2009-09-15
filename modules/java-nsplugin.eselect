@@ -1,3 +1,4 @@
+# -*-eselect-*-  vim: ft=eselect
 # Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
@@ -204,5 +205,3 @@ get_system_plugin_vm() {
 	fi
 	plugin_to_vm ${plugin}
 }
-
-# vim: ts=4 sw=4 noet fdm=marker

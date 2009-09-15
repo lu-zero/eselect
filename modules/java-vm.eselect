@@ -1,3 +1,4 @@
+# -*-eselect-*-  vim: ft=eselect
 # Copyright 1999-2005 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
@@ -141,5 +142,3 @@ set_symlink() {
 		die -q "Target \"${1}\" doesn't appear to be valid!"
 	fi
 }
-
-# vim: set ft=eselect :

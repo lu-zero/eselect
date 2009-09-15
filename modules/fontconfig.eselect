@@ -1,3 +1,4 @@
+# -*-eselect-*-  vim: ft=eselect
 # Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/app-admin/eselect-fontconfig/files/fontconfig.eselect-1.0,v 1.1 2007/07/28 02:50:13 dirtyepic Exp $
@@ -202,5 +203,3 @@ do_disable() {
 		fi
 	done
 }
-
-# vim: set ft=eselect :

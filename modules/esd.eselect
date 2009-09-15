@@ -1,3 +1,4 @@
+# -*-eselect-*-  vim: ft=eselect
 # Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
@@ -149,5 +150,3 @@ do_update() {
 		set_symlink 1 || die -q "Can't set a new provider"
 	fi
 }
-
-# vim: set ft=eselect :
