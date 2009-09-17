@@ -1,3 +1,18 @@
+2009-09-17  Ulrich Mueller  <ulm@gentoo.org>
+
+	* modules/opengl.eselect: Sync with version in Portage, on behalf
+	of Tomáš Chvátal <scarabeus@gentoo.org>.
+	(EBUILD_VERSION): Update to 1.0.8.
+	(relpath): New function.
+	(check_version): Function removed.
+	(setup_lib_symlinks): Use relative symlinks; patch from
+	Sven 'sleipnir' Rebhan <OdinsHorse@googlemail.com>, fixes
+	bug 261498. Respect ROOT; patch from Mandeep Singh Baines
+	<mandeep.baines@gmail.com>, fixes bug 280212.
+	(set_new_implementation): Remove stale libdri and libdri2
+	symlinks; patches from Fabio Erculiani <lxnay@sabayonlinux.org>,
+	fixes bugs 274959 and 281452. Don't call check_version.
+
 2009-06-04  Ulrich Mueller  <ulm@gentoo.org>
 
 	* modules/package-manager.eselect: New module, managing the
