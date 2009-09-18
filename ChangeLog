@@ -1,5 +1,8 @@
 2009-09-18  Ulrich Mueller  <ulm@gentoo.org>
 
+	* modules/whois.eselect: Removed, as its ebuild was removed from
+	the Portage tree long ago, see bug 153030.
+
 	* modules/java-nsplugin.eselect, modules/java-vm.eselect:
 	Removed, as discussed with Petteri Räty <betelgeuse@gentoo.org>.
 	The files' new location is in the Java project overlay:
