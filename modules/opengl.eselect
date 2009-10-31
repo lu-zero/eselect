@@ -3,6 +3,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 # Author:  Martin Schlemmer <azarah@gentoo.org>
+# Further modifications by Tomáš Chvátal <scarabeus@gentoo.org>
 # Further modifications by Donnie Berkholz <dberkholz@gentoo.org>
 # Further modifications based off submissions to bug #54984 <cyfred@gentoo.org>
 # Further modifications by Jeremy Huddleston <eradicator@gentoo.org>
@@ -12,10 +13,10 @@ inherit multilib package-manager config
 
 # Eselect data
 DESCRIPTION="Manage the OpenGL implementation used by your system"
-MAINTAINER="x11-drivers@gentoo.org"
+MAINTAINER="x11@gentoo.org"
 SVN_DATE='$Date$'
 VERSION=$(svn_date_to_version "${SVN_DATE}" )
-EBUILD_VERSION="1.0.8"
+EBUILD_VERSION="1.0.9"
 
 # Our data
 ENV_FILE="${ROOT}/etc/env.d/03opengl"
@@ -23,17 +24,22 @@ PREFIX="${ROOT}/usr"
 DST_PREFIX="${ROOT}/usr"
 USE_PROFILE_HEADERS="no"
 
+# 1: source
+# 2: target dir
 relpath() {
-	local src=$2
-	local dst=$1
-	local curpath="."
-
-	while [ "${dst#${src}}" == "${dst}" ]; do
-		curpath=${curpath}/..
-		src=$(readlink -f ${src}/${curpath})
+	local ret
+	local src=$1
+	local dst=$2
+	local curpathfinal="."
+	
+	while [ "${src#${dst}}" == "${src}" ]; do
+		curpathfinal=${curpathfinal}/..
+		curpath="./.."
+		dst=$(readlink -f ${dst}/${curpath})
 	done
+	ret="${curpathfinal}${src#${dst}}"
 
-	echo ${curpath}${dst#${src}}
+	echo ${ret}
 }
 
 get_current_implementation() {
@@ -66,36 +72,92 @@ get_implementations() {
 	echo ${ret}
 }
 
+# 1: file
+# 2: workdir
+upgrade_file() {
+	local file=$1
+	local workdir=$2
+	linkfile=$(relpath ${file} ${workdir})
+
+	[[ -f ${linkfile} ]] || continue
+	if [[ -f $(basename "${file}") || ( -L $(basename "${file}") && ! -e $(basename "${file}") ) ]] ; then
+		rm -f "$(basename "${file}")" || die -q "Failed to delete ${workdir}/$(basename ${file})"
+	fi
+
+	ln -s "${linkfile}" || die -q "Failed to create symlink ${workdir}/$(basename ${file})"
+}
+
 setup_lib_symlinks() {
 	local profile_libdir=${1}
-	local libdir=${2}
+	local target=${2}
 	local file
 	local linkfile
 
-	mkdir -p "${libdir}" || die "Failed to create ${libdir}"
+	mkdir -p "${target}" || die "Failed to create ${target}"
 
-	pushd "${libdir}" &> /dev/null
-		# First remove old symlinks
-		for file in libGL{,core}.{a,so,la} ; do
+	pushd "${target}" &> /dev/null
+		# Note that lafiles are removed here and never enabled again
+		for file in libGL{,core}.{la} ; do
 			rm -f "${file}" || die -q "Failed to delete ${file}"
 		done
 
 		# Note that we don't do .so*, just .so on purpose.  The
 		# loader knows to look in the profile dir, and the
 		# linked just needs the .so
-		for file in ${profile_libdir}/libGL{,core}.{so,a,la}; do
-			linkfile=$(relpath ${file} ${libdir})
+		for file in ${profile_libdir}/libGL{,core}.{so,dylib,a}; do
+			$(upgrade_file ${file} ${target})
+		done
+	popd &> /dev/null
+}
 
-			[[ -f ${file} ]] || continue
-			if [[ -f $(basename "${file}") ]] ; then
-				rm -f "$(basename "${file}")" || die -q "Failed to delete ${libdir}/$(basename "${file}")"
+setup_extensions_symlinks() {
+	local src=$1
+	local target=$2
+	if [[ -e ${src} ]] ; then
+		mkdir -p "${target}" || die "Failed to create ${target}"
+		pushd "${target}" &> /dev/null
+			# First remove old cruft symlinks
+			for file in lib{wfb,glx,dri,dri2}.{a,dylib,so}; do
+				rm -f "${file}" || die -q "Failed to delete ${targetdir}/${file}"
+			done
+
+			# regenerate symlinks
+			for file in ${src}/*.{so,dylib,a}; do
+				upgrade_file "${file}" "${target}"
+			done
+		popd &> /dev/null
+	fi
+}
+
+setup_includes_symlinks() {
+	target=$1
+	includes_folder=$2
+	globalincludes_folder=$3
+	x11includes_folder=$4
+
+	mkdir -p "${target}" || die "Failed to create ${DST_PREFIX}/include/GL"
+	pushd "${target}" &> /dev/null
+		for file in gl.h glx.h glxtokens.h glext.h glxext.h glxmd.h glxproto.h; do
+			# IMPORTANT
+			# It is preferable currently to use the standard glext.h file
+			# however if an OpenGL provider must use a self produced glext.h
+			# then it should be installed to ${gl_implem}/include and the user
+			# can add the --impl-headers option to select it.
+
+			if [[ "${USE_PROFILE_HEADERS}" == "yes" ]] ; then
+				# Check the profile first.
+				if [[ -e ${includes_folder}/${file} ]] ; then
+					upgrade_file "${includes_folder}/${file}" "${target}"
+					continue
+				fi
 			fi
 
-			# Fix libtool archives (#48297)
-			if [[ ${file%.la} != ${file} ]] ; then
-				sed "s:${profile_libdir}:${libdir}:g" "${file}" > "$(basename "${file}")" || die -q "Failed to create ${libdir}/$(basename "${file}")"
-			else
-				ln -s "${linkfile}" || die -q "Failed to create ${libdir}/$(basename "${file}")"
+			if [[ -e ${globalincludes_folder}/${file} ]] ; then
+				upgrade_file "${globalincludes_folder}/${file}" "${target}"
+			elif [[ -e ${includes_folder}/${file} ]] ; then
+				upgrade_file "${includes_folder}/${file}" "${target}"
+			elif [[ -e ${x11includes_folder}/${file} ]] ; then
+				upgrade_file "${x11includes_folder}/${file}" "${target}"
 			fi
 		done
 	popd &> /dev/null
@@ -109,7 +171,7 @@ set_new_implementation() {
 	umask 022
 
 	if ! has ${gl_implem} ${avail_implems}; then
-		die -q "Invalid profile selected."
+		die -q "Invalid opengl implementation selected."
 	fi
 
 	echo -n "Switching to ${gl_implem} OpenGL interface..."
@@ -144,74 +206,9 @@ set_new_implementation() {
 			else
 				moduledir="modules"
 			fi
+			setup_extensions_symlinks "${PREFIX}/${libdir}/opengl/${gl_local}/extensions" "${DST_PREFIX}/${libdir}/${moduledir}/extensions"
 
-			if [[ -e ${PREFIX}/${libdir}/opengl/${gl_local}/extensions ]] ; then
-				mkdir -p "${DST_PREFIX}/${libdir}/${moduledir}/extensions" || die "Failed to create ${DST_PREFIX}/${libdir}/${moduledir}/extensions"
-				pushd "${DST_PREFIX}/${libdir}/${moduledir}/extensions" &> /dev/null
-					# First remove old symlinks
-					for file in lib{wfb,glx,dri,dri2}.{a,so,la}; do
-						rm -f "${file}" || die -q "Failed to delete ${DST_PREFIX}/${libdir}/${moduledir}/extensions/${file}"
-					done
-
-					for file in ${PREFIX}/${libdir}/opengl/${gl_local}/extensions/*.{so,a,la}; do
-						[[ -f ${file} ]] || continue
-						if [[ -f $(basename "${file}") ]] ; then
-							rm -f "$(basename "${file}")" || die -q "Failed to delete ${DST_PREFIX}/${libdir}/${moduledir}/extensions/$(basename "${file}")"
-						fi
-
-						# Fix libtool archives (#48297)
-						if [[ ${file%.la} != ${file} ]] ; then
-							sed "s:${PREFIX}/[^/]*/opengl/[^/]*/lib:${DST_PREFIX}/${libdir}:g" "${file}" > "$(basename "${file}")" || die -q "Failed to create ${DST_PREFIX}/${libdir}/${moduledir}/extensions/$(basename "${file}")"
-						else
-							ln -s "${file}" || die -q "Failed to create ${libdir}/$(basename "${file}")"
-						fi
-					done
-				popd &> /dev/null
-			fi
-
-			# Setup the includes
-			mkdir -p "${DST_PREFIX}/include/GL" || die "Failed to create ${DST_PREFIX}/include/GL"
-			pushd "${DST_PREFIX}/include/GL" &> /dev/null
-				for file in gl.h glx.h glxtokens.h glext.h glxext.h glxmd.h glxproto.h; do
-					# IMPORTANT
-					# It is preferable currently to use the standard glext.h file
-					# however if an OpenGL provider must use a self produced glext.h
-					# then it should be installed to ${gl_implem}/include and the user
-					# can add the --impl-headers option to select it.
-
-					if [[ "${USE_PROFILE_HEADERS}" == "yes" ]] ; then
-						# Check the profile first.
-						if [[ -e ${PREFIX}/${libdir}/opengl/${gl_implem}/include/${file} ]] ; then
-							if [[ -f ${file} || ( -L ${file} && ! -e ${file} ) ]] ; then
-								rm -f "${file}" || die -q "Failed to delete ${DST_PREFIX}/include/GL/$(basename "${file}")"
-							fi
-
-							ln -s ${PREFIX}/${libdir}/opengl/${gl_implem}/include/${file} || die -q "Failed to create ${DST_PREFIX}/include/GL/$(basename "${file}")"
-							continue
-						fi
-					fi
-
-					if [[ -e ${PREFIX}/${libdir}/opengl/global/include/${file} ]] ; then
-						if [[ -f ${file} || ( -L ${file} && ! -e ${file} ) ]] ; then
-							rm -f "${file}" || die -q "Failed to delete ${DST_PREFIX}/include/GL/$(basename "${file}")"
-						fi
-
-						ln -s ${PREFIX}/${libdir}/opengl/global/include/${file} || die -q "Failed to create ${DST_PREFIX}/include/GL/$(basename "${file}")"
-					elif [[ -e ${PREFIX}/${libdir}/opengl/${gl_implem}/include/${file} ]] ; then
-						if [[ -f ${file} || ( -L ${file} && ! -e ${file} ) ]] ; then
-							rm -f "${file}" || die -q "Failed to delete ${DST_PREFIX}/include/GL/$(basename "${file}")"
-						fi
-
-						ln -s ${PREFIX}/${libdir}/opengl/${gl_implem}/include/${file} || die -q "Failed to create ${DST_PREFIX}/include/GL/$(basename "${file}")"
-					elif [[ -e ${PREFIX}/${libdir}/opengl/xorg-x11/include/${file} ]] ; then
-						if [[ -f ${file} || ( -L ${file} && ! -e ${file} ) ]] ; then
-							rm -f "${file}" || die -q "Failed to delete ${DST_PREFIX}/include/GL/$(basename "${file}")"
-						fi
-
-						ln -s ${PREFIX}/${libdir}/opengl/xorg-x11/include/${file} || die -q "Failed to create ${DST_PREFIX}/include/GL/$(basename "${file}")"
-					fi
-				done
-			popd &> /dev/null
+			setup_includes_symlinks "${DST_PREFIX}/include/GL" "${PREFIX}/${libdir}/opengl/${gl_implem}/include/" "${PREFIX}/${libdir}/opengl/global/include/" "${PREFIX}/${libdir}/opengl/xorg-x11/include/"
 
 			# Setup the $LDPATH
 			ldpath="${ldpath:+${ldpath}:}${PREFIX}/${libdir}/opengl/${gl_local}/lib"
@@ -277,14 +274,6 @@ describe_set_options() {
 	echo "--prefix=<val> : Set the source prefix (default: /usr)"
 	echo "--dst-prefix=<val> : Set the destination prefix (default: /usr)"
 	echo "--impl-headers : Override global headers with ones provided by this profile"
-#	write_list_start "Extra options for 'set' action:"
-#	write_kv_list_entry "<target>" "The profile to activate."
-#	write_kv_list_entry "--use-old" "If an implementation is already set, use that one."
-#	write_kv_list_entry "--prefix=<val>" "Set the source prefix (default: /usr)"
-#	write_kv_list_entry "--dst-prefix=<val>" "Set the destination prefix (default: /usr)"
-#	write_kv_list_entry "--impl-headers" "Use headers provided by this implementation to"
-#	write_kv_list_entry "" "override golbal ones provided by opengl-update."
-#	write_kv_list_entry "" "This was default in <opengl-update-2.2"
 }
 
 do_set() {
