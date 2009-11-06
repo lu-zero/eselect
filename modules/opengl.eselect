@@ -24,24 +24,6 @@ PREFIX="${ROOT}/usr"
 DST_PREFIX="${ROOT}/usr"
 USE_PROFILE_HEADERS="no"
 
-# 1: source
-# 2: target dir
-relpath() {
-	local ret
-	local src=$1
-	local dst=$2
-	local curpathfinal="."
-	
-	while [ "${src#${dst}}" == "${src}" ]; do
-		curpathfinal=${curpathfinal}/..
-		curpath="./.."
-		dst=$(readlink -f ${dst}/${curpath})
-	done
-	ret="${curpathfinal}${src#${dst}}"
-
-	echo ${ret}
-}
-
 get_current_implementation() {
 	local ret
 	local ldpath=$(load_config "${ENV_FILE}" LDPATH)
@@ -77,7 +59,7 @@ get_implementations() {
 upgrade_file() {
 	local file=$1
 	local workdir=$2
-	linkfile=$(relpath ${file} ${workdir})
+	linkfile=$(relative_name ${file} ${workdir})
 
 	[[ -f ${linkfile} ]] || continue
 	if [[ -f $(basename "${file}") || ( -L $(basename "${file}") && ! -e $(basename "${file}") ) ]] ; then
@@ -105,7 +87,7 @@ setup_lib_symlinks() {
 		# loader knows to look in the profile dir, and the
 		# linked just needs the .so
 		for file in ${profile_libdir}/libGL{,core}.{so,dylib,a}; do
-			$(upgrade_file ${file} ${target})
+			upgrade_file ${file} ${target}
 		done
 	popd &> /dev/null
 }
