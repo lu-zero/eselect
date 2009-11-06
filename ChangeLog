@@ -1,3 +1,12 @@
+2009-11-06  Ulrich Mueller  <ulm@gentoo.org>
+
+	* modules/opengl.eselect (do_list): Support brief output mode,
+	bug 292109.
+
+	* modules/esd.eselect (do_list):
+	* modules/timidity.eselect (do_list): Support brief output mode,
+	bug 292102.
+
 2009-09-18  Ulrich Mueller  <ulm@gentoo.org>
 
 	* modules/whois.eselect: Removed, as its ebuild was removed from

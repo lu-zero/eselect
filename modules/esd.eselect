@@ -74,20 +74,18 @@ do_list() {
 
 	local i targets
 	targets=( $(find_targets ) )
-	if [[ -n ${targets[@]} ]] ; then
-		for (( i = 0 ; i < ${#targets[@]} ; i = i + 1 )) ; do
-			targetname="targetname_${targets[${i}]/-/_}"
-			if [[ ${targets[${i}]} == $(basename $(canonicalise ${ROOT}/usr/bin/esd ) ) ]]; then
-				targets[${i}]="${!targetname} $(highlight '*' )"
-			else
-				targets[${i}]="${!targetname}"
-			fi
-		done
-		write_list_start "Available ESounD implementations:"
-		write_numbered_list "${targets[@]}"
-	else
-		write_kv_list_entry "(none found)" ""
-	fi
+	for (( i = 0; i < ${#targets[@]}; i++ )); do
+		targetname="targetname_${targets[${i}]/-/_}"
+		if [[ ${targets[i]} = \
+			$(basename "$(canonicalise "${ROOT}/usr/bin/esd")") ]]
+		then
+			targets[i]=$(highlight_marker "${!targetname}")
+		else
+			targets[i]="${!targetname}"
+		fi
+	done
+	write_list_start "Available ESounD implementations:"
+	write_numbered_list -m "(none found)" "${targets[@]}"
 }
 
 ### set action ###

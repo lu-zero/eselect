@@ -211,18 +211,13 @@ describe_list() {
 }
 
 do_list() {
-	targets=( $(get_implementations) )
+	local i targets=( $(get_implementations) )
 	write_list_start "Available OpenGL implementations:"
-	if [[ -n ${targets[@]} ]] ; then
-		local i
-		for (( i = 0 ; i < ${#targets[@]} ; i = i + 1 )) ; do
-			[[ ${targets[${i}]} == $(get_current_implementation) ]] \
-				&& targets[${i}]="${targets[${i}]} $(highlight '*' )"
-		done
-		write_numbered_list "${targets[@]}"
-	else
-		write_kv_list_entry "(none found)" ""
-	fi
+	for (( i = 0; i < ${#targets[@]}; i++ )); do
+		[[ ${targets[i]} = $(get_current_implementation) ]] \
+			&& targets[i]=$(highlight_marker "${targets[i]}")
+	done
+	write_numbered_list -m "(none found)" "${targets[@]}"
 }
 
 ### set action ###
