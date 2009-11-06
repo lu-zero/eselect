@@ -62,18 +62,17 @@ upgrade_file() {
 	linkfile=$(relative_name ${file} ${workdir})
 
 	[[ -f ${linkfile} ]] || continue
-	if [[ -f $(basename "${file}") || ( -L $(basename "${file}") && ! -e $(basename "${file}") ) ]] ; then
-		rm -f "$(basename "${file}")" || die -q "Failed to delete ${workdir}/$(basename ${file})"
+	if [[ -f $(basename "${linkfile}") || ( -L $(basename "${linkfile}") && ! -e $(basename "${linkfile}") ) ]] ; then
+		rm -f "$(basename "${linkfile}")" || die -q "Failed to delete ${workdir}/$(basename ${linkfile})"
 	fi
 
-	ln -s "${linkfile}" || die -q "Failed to create symlink ${workdir}/$(basename ${file})"
+	ln -s "${linkfile}" || die -q "Failed to create symlink ${workdir}/$(basename ${linkfile})"
 }
 
 setup_lib_symlinks() {
 	local profile_libdir=${1}
 	local target=${2}
 	local file
-	local linkfile
 
 	mkdir -p "${target}" || die "Failed to create ${target}"
 
