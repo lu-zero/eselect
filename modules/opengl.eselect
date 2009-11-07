@@ -163,12 +163,16 @@ set_new_implementation() {
 
 			# Check if opengl implementation directory exists and
 			# use xorg-x11 as fallback (mesa)
-			# FIXME: this can be wrong because users can have implementation
-			# but don't need to have mesa installed
-			if [[ -d ${PREFIX}/${libdir}/opengl/"${gl_implem}" ]] ; then
+			# If even mesa is not around then simply die
+			if [[ -d "${PREFIX}/${libdir}/opengl/${gl_implem}" ]] ; then
 				gl_local="${gl_implem}"
 			else
-				gl_local="xorg-x11"
+				if [[ -d "${PREFIX}/${libdir}/opengl/xorg-x11" ]]; then
+					gl_local="xorg-x11"
+				else
+					# bail out, no implementation around
+					die -q "No proper ${gl_implem} or xorg-x11 opengl implementation found"
+				fi
 			fi
 
 			setup_lib_symlinks \
