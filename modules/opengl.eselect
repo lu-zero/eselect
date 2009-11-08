@@ -60,12 +60,13 @@ upgrade_file() {
 	local workdir=$2
 	linkfile=$(relative_name ${file} ${workdir})
 
-	[[ -f ${linkfile} ]] || continue
-	if [[ -f $(basename "${linkfile}") || ( -L $(basename "${linkfile}") && ! -e $(basename "${linkfile}") ) ]] ; then
-		rm -f "$(basename "${linkfile}")" || die -q "Failed to delete ${workdir}/$(basename ${linkfile})"
+	[[ -f ${file} ]] || continue
+	if [[ -f $(basename "${file}") || ( -L $(basename "${file}") && ! -e $(basename "${file}") ) ]] ; then
+		rm -f "$(basename "${file}")"* || die -q "Failed to delete ${workdir}/$(basename ${file})"
 	fi
 
-	ln -s "${linkfile}" || die -q "Failed to create symlink ${workdir}/$(basename ${linkfile})"
+	#echo "DEBUG: ln -s \"${linkfile}\" \"$(basename ${file})\""
+	ln -s "${linkfile}" "$(basename ${file})" || die -q "Failed to create symlink ${workdir}/$(basename ${file})"
 }
 
 setup_lib_symlinks() {
@@ -78,7 +79,7 @@ setup_lib_symlinks() {
 	pushd "${target}" &> /dev/null
 		# Note that lafiles are removed here and never enabled again
 		for file in libGL{,core}.{la} ; do
-			rm -f "${file}" || die -q "Failed to delete ${file}"
+			rm -f "${file}"* || die -q "Failed to delete ${file}"
 		done
 
 		# Note that we don't do .so*, just .so on purpose.  The
