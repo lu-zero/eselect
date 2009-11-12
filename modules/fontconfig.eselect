@@ -1,5 +1,5 @@
 # -*-eselect-*-  vim: ft=eselect
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/app-admin/eselect-fontconfig/files/fontconfig.eselect-1.0,v 1.1 2007/07/28 02:50:13 dirtyepic Exp $
 
@@ -39,19 +39,16 @@ describe_list() {
 }
 
 do_list() {
-	local opts
+	local n
 	targets=( $(find_targets) )
-	write_list_start "Available fontconfig .conf files  ( $(highlight '*') is enabled ):"
+	write_list_start \
+		"Available fontconfig .conf files ($(highlight '*') is enabled):"
 
-	if [[ -n "${targets[@]}" ]] ; then
-		for (( n = 0 ; n < ${#targets[@]} ; ++n )) ; do
-			is_enabled ${opts:-} ${targets[${n}]} && \
-				targets[${n}]="${targets[${n}]} $(highlight '*')"
-		done
-		write_numbered_list "${targets[@]}"
-	else
-		write_kv_list_entry "(none found)" ""
-	fi
+	for (( n = 0; n < ${#targets[@]}; ++n )); do
+		is_enabled ${targets[n]} \
+			&& targets[n]=$(highlight_marker "${targets[n]}")
+	done
+	write_numbered_list -m "(none found)" "${targets[@]}"
 
 	return 0
 }

@@ -1,10 +1,10 @@
 # -*-eselect-*-  vim: ft=eselect
-# Copyright 1999-2005 Gentoo Foundation
+# Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
 DESCRIPTION="Manage /usr/bin/vi implementations"
-MAINTAINER="pioto@gentoo.org"
+MAINTAINER="vim@gentoo.org"
 SVN_DATE='$Date$'
 VERSION=$(svn_date_to_version "${SVN_DATE}" )
 
@@ -117,16 +117,13 @@ do_list() {
 
 	local i targets
 	targets=( $(find_targets ) )
-	if [[ -n ${targets[@]} ]] ; then
-		for (( i = 0 ; i < ${#targets[@]} ; i = i + 1 )) ; do
-			[[ ${targets[${i}]} == $(basename $(canonicalise ${ROOT}/usr/bin/vi ) ) ]] && \
-				targets[${i}]="${targets[${i}]} $(highlight '*' )"
-		done
-		write_list_start "Available vi implementations:"
-		write_numbered_list "${targets[@]}"
-	else
-		write_kv_list_entry "(none found)" ""
-	fi
+	for (( i = 0; i < ${#targets[@]}; i++ )); do
+		[[ ${targets[i]} = \
+			$(basename "$(canonicalise "${ROOT}/usr/bin/vi")") ]] \
+			&& targets[i]=$(highlight_marker "${targets[i]}")
+	done
+	write_list_start "Available vi implementations:"
+	write_numbered_list -m "(none found)" "${targets[@]}"
 }
 
 ### set action ###

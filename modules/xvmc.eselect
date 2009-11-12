@@ -1,5 +1,5 @@
 # -*-eselect-*-  vim: ft=eselect
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -76,18 +76,15 @@ do_list() {
 	local output n
 	local avail=( $(get_implementation_indices) )
 	local current=$(get_current_implementation_index)
-	write_list_start "Available XvMC implementations  ( $(highlight '*') is current ):"
+	write_list_start \
+		"Available XvMC implementations ($(highlight '*') is current):"
 
-	if (( ${#avail[@]} )) ; then
-		for n in "${avail[@]}" ; do
-			output[n]="${XVMCPRETTY[n]}"
-			[[ ${current} -eq ${n} ]] && \
-				output[n]+=" $(highlight '*')"
-		done
-		write_numbered_list "${output[@]}"
-	else
-		write_kv_list_entry "(none found)" ""
-	fi
+	for n in "${avail[@]}"; do
+		output[n]=${XVMCPRETTY[n]}
+		[[ ${current} -eq ${n} ]] \
+			&& output[n]=$(highlight_marker "${output[n]}")
+	done
+	write_numbered_list -m "(none found)" "${output[@]}"
 
 	return 0
 }
