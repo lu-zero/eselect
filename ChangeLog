@@ -1,3 +1,21 @@
+2009-11-13  Ryan Hill  <dirtyepic@gentoo.org>
+
+	* modules/wxwidgets.eselect: Use EROOT throughout. Minor updates.
+
+2009-11-12  Ulrich Mueller  <ulm@gentoo.org>
+
+	* modules/fontconfig.eselect (do_list):
+	* modules/vi.eselect (do_list):
+	* modules/wxwidgets.eselect (do_list):
+	* modules/xvmc.eselect (do_list): Support brief output mode,
+	bugs 292104, 292117, 292119, and 292120, respectively.
+
+2009-11-08  Tomáš Chvátal  <scarabeus@gentoo.org>
+
+	* modules/opengl.eselect: Prepare for 1.1.0 release. Fix the
+	implementation detector and fallback case. Fix the symlink creator
+	to use correct basename for link name.
+
 2009-11-06  Ulrich Mueller  <ulm@gentoo.org>
 
 	* modules/opengl.eselect (do_list): Support brief output mode,
@@ -6,6 +24,16 @@
 	* modules/esd.eselect (do_list):
 	* modules/timidity.eselect (do_list): Support brief output mode,
 	bug 292102.
+
+2009-11-06  Tomáš Chvátal  <scarabeus@gentoo.org>
+
+	* modules/opengl.eselect: Update eselect-opengl to version 1.0.9:
+	Support for prefix on mac by default; separated functions for
+	better readability; removed duplicated code; .la files are no
+	longer being shipped. Use internal relative_name function instead
+	my own relpath function. Use proper variable for deleting symlink,
+	before its recreation. Drop --impl-headers option which is not
+	used anywhere anyway. Revert if there are issues (should be none).
 
 2009-09-18  Ulrich Mueller  <ulm@gentoo.org>
 
