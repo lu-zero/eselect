@@ -78,7 +78,7 @@ setup_lib_symlinks() {
 
 	pushd "${target}" &> /dev/null
 		# Note that lafiles are removed here and never enabled again
-		for file in libGL{,core}.{la} ; do
+		for file in libGL{,core}.la ; do
 			rm -f "${file}"* || die -q "Failed to delete ${file}"
 		done
 
