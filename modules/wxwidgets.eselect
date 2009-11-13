@@ -1,16 +1,17 @@
 # -*-eselect-*-  vim: ft=eselect
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-admin/eselect-wxwidgets/files/wxwidgets.eselect-0.8,v 1.2 2008/02/08 01:08:07 dirtyepic Exp $
+# $Id$
 
 inherit config
 
 DESCRIPTION="Manage the system default wxWidgets profile."
-MAINTAINER="dirtyepic@gentoo.org"
-VERSION=0.8
+MAINTAINER="wxwidgets@gentoo.org"
+SVN_DATE='$Date$'
+VERSION=$(svn_date_to_version "${SVN_DATE}")
 
-WXCONFFILE=/var/lib/wxwidgets/current
-WXCONFDIR=/usr/lib/wx/config
+WXCONFFILE="${EROOT}"/var/lib/wxwidgets/current
+WXCONFDIR="${EROOT}"/usr/lib/wx/config
 
 find_targets() {
 	local conf
@@ -55,7 +56,7 @@ set_config() {
 
 	# symlink bakefile presets to current slot (Bug #209150)
 	local f
-	pushd /usr/share/bakefile/presets/ &> /dev/null
+	pushd "${EROOT}"/usr/share/bakefile/presets/ &> /dev/null
 	for f in .bkl _unix.bkl _win32.bkl; do
 		if [[ -e wx${f} || -L wx${f} ]]; then
 			rm -f wx${f} || die -q "Error removing wx${f}"
@@ -124,7 +125,7 @@ do_set() {
 	[[ ! ${#@} -eq 1 ]] \
 		&& die -q "You must specify a profile name or number"
 
-	[[ -w "${ROOT}"/var/lib ]] \
+	[[ -w "${EROOT}"/var/lib ]] \
 		|| die -q "You need proper write permissions.  Please run as root."
 
 	set_config "${1}"
