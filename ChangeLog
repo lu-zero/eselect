@@ -15,6 +15,7 @@
 	* modules/opengl.eselect: Prepare for 1.1.0 release. Fix the
 	implementation detector and fallback case. Fix the symlink creator
 	to use correct basename for link name.
+	* man/opengl.eselect.5: Drop mention of --impl-headers.
 
 2009-11-06  Ulrich Mueller  <ulm@gentoo.org>
 
