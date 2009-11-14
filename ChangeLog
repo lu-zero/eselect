@@ -4,7 +4,8 @@
 
 2009-11-13  Ulrich Mueller  <ulm@gentoo.org>
 
-	* modules/fontconfig.eselect: Replace Header by Id keyword..
+	* modules/fontconfig.eselect: Replace Header by Id, since the
+	former is not a valid subversion keyword.
 
 2009-11-13  Ryan Hill  <dirtyepic@gentoo.org>
 
