@@ -4,13 +4,14 @@
 # $Id$
 
 DESCRIPTION="Manage fontconfig /etc/fonts/conf.d/ symlinks"
-MAINTAINER="cardoe@gentoo.org"
+AUTHOR="cardoe@gentoo.org"
+MAINTAINER="fonts@gentoo.org"
 SVN_DATE='$Date$'
 VERSION=$(svn_date_to_version "${SVN_DATE}")
 
 find_targets() {
 	local targets bc x i=0
-	bcdirs[i]="${ROOT}/etc/fonts/conf.avail/*.conf"
+	bcdirs[i]="${EROOT}/etc/fonts/conf.avail/*.conf"
 
 	if [[ -n "${ES_FONTCONFIG_DIRS}" ]] ; then
 		for x in ${ES_FONTCONFIG_DIRS} ; do
@@ -26,7 +27,7 @@ find_targets() {
 }
 
 is_enabled() {
-	bcdir="${ROOT}/etc/fonts/conf.d"
+	bcdir="${EROOT}/etc/fonts/conf.d"
 
 	[[ -e ${bcdir}/${1} ]] || return 1
 	return 0
@@ -68,7 +69,7 @@ describe_enable_options() {
 }
 
 do_enable() {
-	local bc bcdir="${ROOT}/etc/fonts/conf.d"
+	local bc bcdir="${EROOT}/etc/fonts/conf.d"
 
 	[[ -z ${1} ]] && die -q "You didn't specify any .conf files to enable"
 
@@ -103,21 +104,21 @@ do_enable() {
 		case "${bc}" in
 			# absolute path
 			/*)
-				file="${ROOT}/${bc}"
+				file="${EROOT}/${bc}"
 				;;
 			# relative path
 			*/*)
-				file="${ROOT}/${PWD}/${bc}"
+				file="${EROOT}/${PWD}/${bc}"
 				;;
 			# no path
 			*)
 				# CWD
 				if [[ -f ${bc} ]] ; then
-					file="${ROOT}/${PWD}/${bc}"
+					file="${EROOT}/${PWD}/${bc}"
 				# assume /etc/fonts/conf.avail
-				elif [[ -f ${ROOT}/etc/fonts/conf.avail/${bc} ]]
+				elif [[ -f ${EROOT}/etc/fonts/conf.avail/${bc} ]]
 				then
-					file="${ROOT}/etc/fonts/conf.avail/${bc}"
+					file="${EROOT}/etc/fonts/conf.avail/${bc}"
 				else
 					if [[ -n "${ES_FONTCONFIG_DIRS}" ]] ; then
 						for x in ${ES_FONTCONFIG_DIRS} ; do
@@ -126,7 +127,7 @@ do_enable() {
 					fi
 
 					[[ -e ${file} ]] || \
-						file="${ROOT}/etc/fonts/conf.avail/${bc}"
+						file="${EROOT}/etc/fonts/conf.avail/${bc}"
 				fi
 				;;
 		esac
@@ -165,7 +166,7 @@ describe_disable_options() {
 
 
 do_disable() {
-	local bc bcdir="${ROOT}/etc/fonts/conf.d"
+	local bc bcdir="${EROOT}/etc/fonts/conf.d"
 
 	[[ -z ${1} ]] && die -q "You didn't specify any .conf files to disable"
 

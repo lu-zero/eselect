@@ -1,5 +1,13 @@
 2009-11-13  Ryan Hill  <dirtyepic@gentoo.org>
 
+	* modules/fontconfig.eselect: Use EROOT throughout. Update MAINTAINER.
+
+2009-11-13  Ulrich Mueller  <ulm@gentoo.org>
+
+	* modules/fontconfig.eselect: Replace Header by Id keyword..
+
+2009-11-13  Ryan Hill  <dirtyepic@gentoo.org>
+
 	* modules/wxwidgets.eselect: Use EROOT throughout. Minor updates.
 
 2009-11-12  Ulrich Mueller  <ulm@gentoo.org>
