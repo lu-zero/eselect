@@ -16,7 +16,7 @@ DESCRIPTION="Manage the OpenGL implementation used by your system"
 MAINTAINER="x11@gentoo.org"
 SVN_DATE='$Date$'
 VERSION=$(svn_date_to_version "${SVN_DATE}" )
-EBUILD_VERSION="1.1.0"
+EBUILD_VERSION="1.1.2"
 
 # Our data
 ENV_FILE="${ROOT}/etc/env.d/03opengl"
@@ -69,6 +69,19 @@ upgrade_file() {
 	ln -s "${linkfile}" "$(basename ${file})" || die -q "Failed to create symlink ${workdir}/$(basename ${file})"
 }
 
+setup_soname_symlinks() {
+	local file=${1}
+	local target=${2}
+
+	if [[ "${file}" == *.so ]] ; then
+		# if we have so we need to make his soname symlinked
+		# in order to be easy to find and faster to grab
+		soname=$(scanelf -qBF '%S|%p' ${file})
+		soname=${soname%|*}  # stupid scanelf must print filename
+		upgrade_file ${file%/*}/${soname} "${target}"
+	fi
+}
+
 setup_lib_symlinks() {
 	local profile_libdir=${1}
 	local target=${2}
@@ -82,11 +95,10 @@ setup_lib_symlinks() {
 			rm -f "${file}"* || die -q "Failed to delete ${file}"
 		done
 
-		# Note that we don't do .so*, just .so on purpose.  The
-		# loader knows to look in the profile dir, and the
-		# linked just needs the .so
 		for file in ${profile_libdir}/libGL{,core}.{so,dylib,a}; do
-			upgrade_file ${file} ${target}
+			upgrade_file "${file}" "${target}"
+			setup_soname_symlinks "${file}" "${target}"
+
 		done
 	popd &> /dev/null
 }
@@ -94,7 +106,7 @@ setup_lib_symlinks() {
 setup_extensions_symlinks() {
 	local src=$1
 	local target=$2
-	if [[ -e ${src} ]] ; then
+	if [[ -e "${src}" ]] ; then
 		mkdir -p "${target}" || die "Failed to create ${target}"
 		pushd "${target}" &> /dev/null
 			# First remove old cruft symlinks
@@ -105,6 +117,7 @@ setup_extensions_symlinks() {
 			# regenerate symlinks
 			for file in ${src}/*.{so,dylib,a}; do
 				upgrade_file "${file}" "${target}"
+				setup_soname_symlinks "${file}" "${target}"
 			done
 		popd &> /dev/null
 	fi
