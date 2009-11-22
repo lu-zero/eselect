@@ -1,6 +1,11 @@
+2009-11-22  Ulrich Mueller  <ulm@gentoo.org>
+
+	* modules/oracle.eselect: Module removed. See bug 292111.
+
 2009-11-13  Ryan Hill  <dirtyepic@gentoo.org>
 
-	* modules/fontconfig.eselect: Use EROOT throughout. Update MAINTAINER.
+	* modules/fontconfig.eselect: Use EROOT throughout.
+	Update MAINTAINER.
 
 2009-11-13  Ulrich Mueller  <ulm@gentoo.org>
 
