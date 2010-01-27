@@ -1,3 +1,8 @@
+2010-01-27  Ulrich Mueller  <ulm@gentoo.org>
+
+	* modules/esd.eselect: Use EROOT throughout, bug 302134.
+	Fix quoting.
+
 2009-11-22  Ulrich Mueller  <ulm@gentoo.org>
 
 	* modules/oracle.eselect: Module removed. See bug 292111.
