@@ -1,3 +1,8 @@
+2010-02-03  Ryan Hill  <dirtyepic@gentoo.org>
+
+	* AUTHORS: Add myself.
+	* modules/wxwidgets.eselect: Add support for 2.9.
+
 2010-01-27  Ulrich Mueller  <ulm@gentoo.org>
 
 	* modules/esd.eselect: Use EROOT throughout, bug 302134.

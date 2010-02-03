@@ -46,24 +46,21 @@ set_config() {
 
 	if [[ ! ${target} == "none" ]]; then
 		# expose the slot number of the selected target for various uses
-		local wxslot
-		OIFS=${IFS}
-		IFS=-
-		set -- ${target}
-		wxslot=${4}
-		IFS=${OIFS}
+		local wxslot=${target##*-}
 	fi
 
 	# symlink bakefile presets to current slot (Bug #209150)
 	local f
 	pushd "${EROOT}"/usr/share/bakefile/presets/ &> /dev/null
-	for f in .bkl _unix.bkl _win32.bkl; do
+	for f in .bkl _presets.py _unix.bkl _win32.bkl _xrc.bkl; do
 		if [[ -e wx${f} || -L wx${f} ]]; then
 			rm -f wx${f} || die -q "Error removing wx${f}"
 		fi
 		if [[ ! ${target} == "none" ]]; then
-			ln -sf wx${wxslot/./}${f} wx${f} \
-				|| die -q "Error symlinking wx${wxslot/./}${f}"
+			if [[ -e wx${wxslot/./}${f} ]]; then
+				ln -sf wx${wxslot/./}${f} wx${f} \
+					|| die -q "Error symlinking wx${wxslot/./}${f}"
+			fi
 		fi
 	done
 	popd &> /dev/null
@@ -114,7 +111,7 @@ describe_set() {
 }
 
 describe_set_options() {
-	echo "target: profile name or number (gotten from 'list')"
+	echo "<target> : Profile name or number (from 'list' action)"
 }
 
 describe_set_parameters() {
@@ -126,7 +123,7 @@ do_set() {
 		&& die -q "You must specify a profile name or number"
 
 	[[ -w "${EROOT}"/var/lib ]] \
-		|| die -q "You need proper write permissions.  Please run as root."
+		|| die -q "You need write permission to /var/lib to perform this action."
 
 	set_config "${1}"
 }
@@ -146,7 +143,7 @@ do_update() {
 	# if current config is valid leave it alone
 	[[ -e ${WXCONFDIR}/${currconf} ]] && return 0
 
-	# split the config string into components
+	# split the current config into components
 	OIFS=${IFS}
 	IFS=-
 	set -- ${currconf}
@@ -154,25 +151,31 @@ do_update() {
 
 	declare -a wxtoolkit wxchar wxdebug wxver
 
-	# put selected components into the first element of the array
+	# put them into the first element of the arrays
 	wxtoolkit=(${1})
 	wxchar=(${2})
-	wxdebug=(${3})
-	wxver=(${4})
+	if [[ $# -eq 3 ]]; then
+		# >=2.9 doesn't have a debug component, so fake it
+		wxdebug=(release)
+		wxver=(${3})
+	else
+		wxdebug=(${3})
+		wxver=(${4})
+	fi
 
-	# put available components into next element(s) of array
-	local component toolkit char debug ver element opt
+	# now put all possible components into the next elements
+	local component toolkit char debug ver i opt
 
 	for component in toolkit char debug ver; do
-		element=1
+		i=1
 		case ${component} in
 			toolkit)
 				for opt in base gtk2; do
 					if [[ ${opt} == ${wxtoolkit[0]} ]]; then
 						continue
 					else
-						wxtoolkit[${element}]=${opt}
-						(( element++ ))
+						wxtoolkit[${i}]=${opt}
+						(( i++ ))
 					fi
 				done
 				;;
@@ -182,8 +185,8 @@ do_update() {
 					if [[ ${opt} == ${wxchar[0]} ]]; then
 						continue
 					else
-						wxchar[${element}]=${opt}
-						(( element++ ))
+						wxchar[${i}]=${opt}
+						(( i++ ))
 					fi
 				done
 				;;
@@ -193,27 +196,32 @@ do_update() {
 					if [[ ${opt} == ${wxdebug[0]} ]]; then
 						continue
 					else
-						wxdebug[${element}]=${opt}
-						(( element++ ))
+						wxdebug[${i}]=${opt}
+						(( i++ ))
 					fi
 				done
 				;;
 
 			ver)
-				for opt in 2.10 2.8 2.6; do
+				for opt in 2.9 2.8 2.6; do
 					if [[ ${opt} == ${wxver[0]} ]]; then
 						continue
 					else
-						wxver[${element}]=${opt}
-						(( element++ ))
+						wxver[${i}]=${opt}
+						(( i++ ))
 					fi
 				done
 				;;
 		esac
 	done
 
-	# Now we iterate through the installed wx-configs and find the closest match
-	# ( debug > char > toolkit > ver )
+	# Now we iterate through all the installed configs and find the closest match
+	# ( debug -> char -> toolkit -> ver )
+	# meaning w/ a current config of gtk2-unicode-debug-2.6, it will pick
+	# gtk2-unicode-release-2.6 before
+	# gtk2-ansi-debug-2.6 before
+	# base-unicode-debug-2.6 before
+	# gtk2-unicode-debug-2.8
 
 	local d c t v checkconf foundconf
 
@@ -221,7 +229,12 @@ do_update() {
 		for (( t = 0 ; t < ${#wxtoolkit[@]} ; t++ )); do
 			for (( c = 0 ; c < ${#wxchar[@]} ; c++ )); do
 				for (( d = 0 ; d < ${#wxdebug[@]} ; d++ )); do
-					checkconf="${wxtoolkit[$t]}-${wxchar[$c]}-${wxdebug[$d]}-${wxver[$v]}"
+					if [[ ${wxver[$v]} != 2.[6,8] ]]; then
+						# >=2.9 doesn't have a debug component
+						checkconf="${wxtoolkit[$t]}-${wxchar[$c]}-${wxver[$v]}"
+					else
+						checkconf="${wxtoolkit[$t]}-${wxchar[$c]}-${wxdebug[$d]}-${wxver[$v]}"
+					fi
 					[[ -e ${WXCONFDIR}/${checkconf} ]] || continue
 					foundconf=${checkconf}
 					break 4
@@ -230,13 +243,14 @@ do_update() {
 		done
 	done
 
+	# nothing installed
 	[[ -z ${foundconf} ]] && foundconf="none"
 
 	echo
-	write_warning_msg "Your currently selected wxWidgets profile:	( ${currconf} )"
+	write_warning_msg "Your currently selected wxWidgets profile:    ( ${currconf} )"
 	write_warning_msg "is no longer available."
 	write_warning_msg
-	write_warning_msg "The closest matching profile:	( ${foundconf} )"
+	write_warning_msg "The closest matching profile:                 ( ${foundconf} )"
 	write_warning_msg "will be activated in its place."
 
 	do_set ${foundconf}
