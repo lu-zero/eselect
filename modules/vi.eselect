@@ -1,5 +1,5 @@
 # -*-eselect-*-  vim: ft=eselect
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -57,7 +57,7 @@ set_symlinks() {
 	local target="${1}" targets
 	if is_number "${target}" && [[ ${target} -ge 1 ]] ; then
 		targets=( $(find_targets ) )
-		target=${targets[$(( ${target} - 1 ))]}
+		target=${targets[target-1]}
 	fi
 
 	local dir
@@ -76,12 +76,13 @@ set_symlinks() {
 		set_man_symlink "${target}" "view"
 
 		# it's not okay if these fail
-		ln -s "${dir}/${target}" "${ROOT}/usr/bin/vi" || \
-			die "Couldn't set ${target} /usr/bin/vi symlink"
-		ln -s "${dir}/${target}" "${ROOT}/usr/bin/ex" || \
-			die "Couldn't set ${target} /usr/bin/ex symlink"
-		ln -s "${dir}/${target}" "${ROOT}/usr/bin/view" || \
-			die "Couldn't set ${target} /usr/bin/view symlink"
+		target=$(relative_name "${dir}/${target}" "${ROOT}/usr/bin")
+		ln -s "${target}" "${ROOT}/usr/bin/vi" \
+			|| die "Couldn't set ${target} /usr/bin/vi symlink"
+		ln -s "${target}" "${ROOT}/usr/bin/ex" \
+			|| die "Couldn't set ${target} /usr/bin/ex symlink"
+		ln -s "${target}" "${ROOT}/usr/bin/view" \
+			|| die "Couldn't set ${target} /usr/bin/view symlink"
 	else
 		die -q  "Target \"${1}\" doesn't appear to be valid!"
 	fi

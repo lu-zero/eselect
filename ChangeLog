@@ -1,3 +1,8 @@
+2010-02-26  Ulrich Mueller  <ulm@gentoo.org>
+
+	* modules/vi.eselect (set_symlinks): Fix handling of ROOT in
+	symlinks, bug 260593.
+
 2010-02-03  Ryan Hill  <dirtyepic@gentoo.org>
 
 	* AUTHORS: Add myself.
