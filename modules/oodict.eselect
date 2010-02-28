@@ -1,5 +1,5 @@
 # -*-eselect-*-  vim: ft=eselect
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -20,12 +20,12 @@ VERSION=$(svn_date_to_version "${SVN_DATE}" )
 # Base directory where OpenOffice stores its dictionary information.
 # Default is non-multilib /usr/lib - if given, the --libdir option changes
 # this to the supplied library subdirectory name.
-OOO_DICTBASE="/usr/lib/openoffice/share/dict/ooo"
+OOO_DICTBASE="${EPREFIX}/usr/lib/openoffice/share/dict/ooo"
 OOO_DICTLIST="dictionary.lst"
 
 OODICT_CLASSES="myspell"
 
-MYSPELL_BASE="/usr/share/myspell"
+MYSPELL_BASE="${EPREFIX}/usr/share/myspell"
 
 # set array "fields" to the elements of $1, separated by $2.
 # This saves having to muck about with IFS all over the place.
@@ -65,12 +65,12 @@ oodict_display_langs() {
 	else
 		count=0
 		for lang in $*; do
-			[[ ${count} == 0 ]] && printf "     "
+			((count == 0)) && printf "     "
 			printf " %s" ${lang}
-			((count = count+1))
-			[[ ${count} == 22 ]] && printf "\n" && count=0
+			((count++))
+			((count == 22)) && printf "\n" && count=0
 		done
-		[[ ${count} == 0 ]] || printf "\n"
+		((count == 0)) || printf "\n"
 	fi
 }
 
@@ -124,13 +124,13 @@ oodict_describe_options() {
 # 2) Copy and consume (shift) parameters before calling this, otherwise it
 #    considers extra parameters as potential options.
 oodict_process_options() {
-	while [[ -n $1 && "--" != ${1:0:2} ]]; do
+	while [[ -n $1 && $1 != --* ]]; do
 		shift
 	done
-	while [[ "--" == ${1:0:2} ]]; do
+	while [[ $1 == --* ]]; do
 		if [[ "--libdir" == $1 ]]; then
 			shift
-			OOO_DICTBASE="/usr/$1/openoffice/share/dict/ooo"
+			OOO_DICTBASE="${EPREFIX}/usr/$1/openoffice/share/dict/ooo"
 			libdir=$1
 			shift
 		elif [[ "--" == $1 ]]; then
@@ -168,7 +168,7 @@ do_show() {
 	direct_sources=""
 	while read entry; do
 		fields=(${entry})
-		[[ ${fields[0]:0:1} == "#" ]] && continue
+		[[ ${fields[0]::1} == "#" ]] && continue
 		lang=${fields[1]}
 		for suffix in $(oodict_get_myspell_suffixes ${fields[0]}); do
 			if [[ -h ${OOO_DICTBASE}/${fields[3]}${suffix} ]]; then
@@ -190,12 +190,12 @@ do_show() {
 	if [[ -n ${myspell_sources} ]]; then
 		write_numbered_list_entry ${listn} "myspell"
 		oodict_display_langs "Configured language codes from ${MYSPELL_BASE}" ${myspell_sources}
-		(( listn = ${listn} + 1 ))
+		(( listn++ ))
 	fi
 	if [[ -n ${direct_sources} ]]; then
 		write_numbered_list_entry ${listn} "direct"
 		oodict_display_langs "Language codes installed directly in ${OOO_DICTBASE}" ${direct_sources}
-		(( listn = ${listn} + 1 ))
+		(( listn++ ))
 	fi
 	# show none if no sources found
 	[[ ${listn} == "1" ]] && echo "  (none)"
@@ -223,7 +223,7 @@ do_list() {
 			known_langs="${known_langs} ${dict/${MYSPELL_BASE}\/${OOO_DICTLIST}.}"
 		done
 		oodict_display_langs "Installed language codes" ${known_langs}
-		(( listn = ${listn} + 1 ))
+		(( listn++ ))
 	fi
 	# show none if no sources found
 	[[ ${listn} == "1" ]] && echo "  (none)"
@@ -265,8 +265,8 @@ do_unset() {
 		if [[ -f ${MYSPELL_BASE}/${dictlst} ]]; then
 			while read entry; do
 				fields=(${entry})
-				[[ ${fields[0]:0:1} == "#" ]] && continue
-				[[ ${fields[3]} == "" ]] && continue
+				[[ ${fields[0]::1} == "#" ]] && continue
+				[[ -z ${fields[3]} ]] && continue
 				# Remove entry from dictionary.lst
 				sed -i -e "/^${fields[0]} ${fields[1]} ${fields[2]} ${fields[3]}$/ { d }" \
 					${OOO_DICTBASE}/${OOO_DICTLIST} ||
@@ -363,7 +363,7 @@ do_set() {
 			do_unset ${dict}
 			while read entry; do
 				fields=(${entry})
-				[[ ${fields[0]:0:1} == "#" ]] && continue
+				[[ ${fields[0]::1} == "#" ]] && continue
 				grep "^${fields[0]} ${fields[1]} ${fields[2]} ${fields[3]}$" \
 					${OOO_DICTBASE}/${OOO_DICTLIST} > /dev/null 2>&1 ||
 						echo "${entry}" >> ${OOO_DICTBASE}/${OOO_DICTLIST}
