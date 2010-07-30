@@ -1,0 +1,178 @@
+# Copyright 1999-2010 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Id: $                                                          
+
+DESCRIPTION="Manage the OpenGL driver architecture used by media-libs/mesa"
+MAINTAINER="x11@gentoo.org"
+SVN_DATE='$Date: $'
+VERSION=$(svn_date_to_version "${SVN_DATE}" )
+EBUILD_VERSION="0.0.4"
+
+# Known mesa classic/gallium implementations
+MESA_IMPLEMENTATIONS="i915 i965 r300 r600 sw"
+declare -A MESA_DRIVERS || die "MESA_DRIVERS already in environment and not associative."
+
+MESA_DRIVERS[i915,description]="i915 (Intel 915, 945)"
+MESA_DRIVERS[i915,classicdriver]="i915_dri.so"
+MESA_DRIVERS[i915,galliumdriver]="i915g_dri.so"
+
+MESA_DRIVERS[i965,description]="i965 (Intel 965, G/Q3x, G/Q4x)"
+MESA_DRIVERS[i965,classicdriver]="i965_dri.so"
+MESA_DRIVERS[i965,galliumdriver]="i965g_dri.so"
+
+MESA_DRIVERS[r300,description]="r300 (Radeon R300-R500)"
+MESA_DRIVERS[r300,classicdriver]="r300_dri.so"
+MESA_DRIVERS[r300,galliumdriver]="radeong_dri.so"
+
+MESA_DRIVERS[r600,description]="r600 (Radeon R600-R700)"
+MESA_DRIVERS[r600,classicdriver]="r600_dri.so"
+MESA_DRIVERS[r600,galliumdriver]="r600g_dri.so"
+
+MESA_DRIVERS[sw,description]="sw (Software renderer)"
+MESA_DRIVERS[sw,classicdriver]="swrast_dri.so"
+MESA_DRIVERS[sw,galliumdriver]="swrastg_dri.so"
+
+MESA_DIR="${EROOT}/usr/lib/mesa"
+DRI_DIR="${EROOT}/usr/lib/dri"
+
+# receives a filename of the driver as argument, outputs the architecture (classic or gallium)
+drivername_to_architecture() {
+	local drivername=$1
+	local x
+	local y
+	local z
+	for x in ${MESA_IMPLEMENTATIONS}; do
+		for y in classic gallium; do
+			z=$(get_drivername ${x} ${y})
+			if [[ ${drivername} == ${z} ]]; then
+				echo ${y}
+				exit 0
+			fi
+		done
+	done
+}
+
+# receives chipset family and driver architecture as argument, outputs the driver's filename
+get_drivername() {
+	local family=$1
+	local architecture=$2
+	echo ${MESA_DRIVERS[${family},${architecture}driver]}
+}
+
+# receives the chipset family as argument, outputs the currently selected architecture for that family
+get_current_implementation() {
+	local family=$1
+	local y
+	local z
+	local current=$(get_drivername ${family} classic)
+
+	if [[ -L ${DRI_DIR}/${current} ]]; then
+		for y in classic gallium; do
+			z=$(get_drivername ${family} ${y})
+			if [[ $(readlink ${DRI_DIR}/${current}) == "../mesa/${z}" && -f "${MESA_DIR}/${z}" ]]; then
+				echo $(drivername_to_architecture ${z})
+			fi
+		done
+	elif [[ -f ${DRI_DIR}/${current} ]]; then
+		echo "classic"
+	fi
+}
+
+# receives a family as argument, outputs all installed driver filenames
+get_implementations() {
+	local ret
+	local family=$1
+	local y
+	local z
+	for y in classic gallium; do
+		z=$(get_drivername ${family} ${y})
+		[ -f ${MESA_DIR}/${z} -o -L ${MESA_DIR}/${z} ] && ret+="${y} "
+	done
+	echo ${ret}
+}
+
+### show action ###
+describe_show() {
+	echo "Print the current OpenGL driver."
+}
+
+do_show() {
+	local current
+	local x
+	local y
+	for x in ${MESA_IMPLEMENTATIONS}; do
+		current=$(get_current_implementation ${x})
+		if [[ -n ${current} ]]; then
+			echo -n "${x} "
+			echo ${current}
+		fi
+	done
+	return 0
+}
+
+### list action ###
+describe_list() {
+	echo "List the available OpenGL drivers."
+}
+
+do_list() {
+	local x
+	local y
+	local z
+	local available
+
+	for x in ${MESA_IMPLEMENTATIONS}; do
+		write_list_start ${MESA_DRIVERS[${x},description]}
+		available=( $(get_implementations ${x}) )
+		for (( i = 0 ; i < ${#available[@]} ; i = i + 1 )); do
+			if [[ ${available[${i}]} == $(get_current_implementation ${x}) ]]; then
+				available[${i}]=$(highlight_marker "${available[${i}]}")
+			fi
+			write_kv_list_entry "${available[${i}]}"
+		done
+	done
+}
+
+### set action ###
+describe_set() {
+	echo "Select the OpenGL driver."
+}
+
+describe_set_parameters() {
+	echo "[--auto|<family> <architecture>]"
+}
+
+describe_set_options() {
+	echo "--auto : Sets all drivers which are not already set"
+	echo "<family> : The chipset family, or sw for software renderer"
+	echo "<architecture> : The driver architecture"
+}
+
+do_set() {
+	if [[ "$1" == --auto ]]; then
+		local x
+		for x in ${MESA_IMPLEMENTATIONS}; do
+			local y=( $(get_implementations ${x}) )
+			if [[ -n ${y} && ! -n $(get_current_implementation ${x}) ]]; then
+				do_set ${x} ${y}
+			fi
+		done
+		exit 0
+	elif [[ ${#} != 2 ]] ; then
+		die -q "Usage: set [--auto|<family> <architecture>]"
+	fi
+
+	local family=$(echo $1 | tr '[:upper:]' '[:lower:]')
+	local architecture=$(echo $2 | tr '[:upper:]' '[:lower:]')
+	local symlink=$(get_drivername ${family} classic)
+	local target=$(get_drivername ${family} ${architecture})
+
+	if [[ ! -n ${symlink} || ! -n ${target} ]]; then
+		die -q "Invalid family or architecture."
+	elif [[ -e ${DRI_DIR}/${symlink} && ! -L ${DRI_DIR}/${symlink} ]]; then
+		die -q "Unable to update ${DRI_DIR}/${symlink} - not a symlink"
+	elif [[ -f ${MESA_DIR}/${target} ]]; then
+		echo "Switching $1 to $2"
+		ln -s -f ../mesa/${target} ${DRI_DIR}/${symlink}
+	fi
+}

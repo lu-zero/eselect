@@ -156,6 +156,7 @@ set_new_implementation() {
 	local avail_implems=$(get_implementations)
 	local libdir
 	local moduledir
+	local gl_dir
 	local gl_local
 
 	# Set a sane umask... bug #83115
