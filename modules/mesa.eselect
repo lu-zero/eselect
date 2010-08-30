@@ -6,7 +6,7 @@ DESCRIPTION="Manage the OpenGL driver architecture used by media-libs/mesa"
 MAINTAINER="x11@gentoo.org"
 SVN_DATE='$Date: $'
 VERSION=$(svn_date_to_version "${SVN_DATE}" )
-EBUILD_VERSION="0.0.4"
+EBUILD_VERSION="0.0.5"
 
 # Known mesa classic/gallium implementations
 MESA_IMPLEMENTATIONS="i915 i965 r300 r600 sw"
@@ -22,7 +22,7 @@ MESA_DRIVERS[i965,galliumdriver]="i965g_dri.so"
 
 MESA_DRIVERS[r300,description]="r300 (Radeon R300-R500)"
 MESA_DRIVERS[r300,classicdriver]="r300_dri.so"
-MESA_DRIVERS[r300,galliumdriver]="radeong_dri.so"
+MESA_DRIVERS[r300,galliumdriver]="r300g_dri.so"
 
 MESA_DRIVERS[r600,description]="r600 (Radeon R600-R700)"
 MESA_DRIVERS[r600,classicdriver]="r600_dri.so"
