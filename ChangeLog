@@ -1,3 +1,7 @@
+2010-10-31 Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
+
+	* modules/mesa.eselect:  Update for new media-libs/mesa ebuild
+
 2010-02-26  Ulrich Mueller  <ulm@gentoo.org>
 
 	* modules/vi.eselect (set_symlinks): Fix handling of ROOT in

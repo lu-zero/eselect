@@ -6,34 +6,13 @@ DESCRIPTION="Manage the OpenGL driver architecture used by media-libs/mesa"
 MAINTAINER="x11@gentoo.org"
 SVN_DATE='$Date: $'
 VERSION=$(svn_date_to_version "${SVN_DATE}" )
-EBUILD_VERSION="0.0.5"
+EBUILD_VERSION="0.0.7"
 
-# Known mesa classic/gallium implementations
-MESA_IMPLEMENTATIONS="i915 i965 r300 r600 sw"
-declare -A MESA_DRIVERS || die "MESA_DRIVERS already in environment and not associative."
-
-MESA_DRIVERS[i915,description]="i915 (Intel 915, 945)"
-MESA_DRIVERS[i915,classicdriver]="i915_dri.so"
-MESA_DRIVERS[i915,galliumdriver]="i915g_dri.so"
-
-MESA_DRIVERS[i965,description]="i965 (Intel 965, G/Q3x, G/Q4x)"
-MESA_DRIVERS[i965,classicdriver]="i965_dri.so"
-MESA_DRIVERS[i965,galliumdriver]="i965g_dri.so"
-
-MESA_DRIVERS[r300,description]="r300 (Radeon R300-R500)"
-MESA_DRIVERS[r300,classicdriver]="r300_dri.so"
-MESA_DRIVERS[r300,galliumdriver]="r300g_dri.so"
-
-MESA_DRIVERS[r600,description]="r600 (Radeon R600-R700)"
-MESA_DRIVERS[r600,classicdriver]="r600_dri.so"
-MESA_DRIVERS[r600,galliumdriver]="r600g_dri.so"
-
-MESA_DRIVERS[sw,description]="sw (Software renderer)"
-MESA_DRIVERS[sw,classicdriver]="swrast_dri.so"
-MESA_DRIVERS[sw,galliumdriver]="swrastg_dri.so"
-
+CONFIG_DIR="${EROOT}/usr/share/mesa"
 MESA_DIR="${EROOT}/usr/lib/mesa"
 DRI_DIR="${EROOT}/usr/lib/dri"
+
+source "${CONFIG_DIR}"/eselect-mesa.conf || die "Failed to source config"
 
 # receives a filename of the driver as argument, outputs the architecture (classic or gallium)
 drivername_to_architecture() {
@@ -153,6 +132,10 @@ do_set() {
 		local x
 		for x in ${MESA_IMPLEMENTATIONS}; do
 			local y=( $(get_implementations ${x}) )
+			# prefer default implementation
+			if [[ ${y[1]} == ${MESA_DRIVERS[${x},default]} ]]; then
+				y=${y[1]}
+			fi
 			if [[ -n ${y} && ! -n $(get_current_implementation ${x}) ]]; then
 				do_set ${x} ${y}
 			fi
