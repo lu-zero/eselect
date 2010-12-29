@@ -44,28 +44,19 @@ get_implementations() {
 	local ret
 	local libdir
 	local dir
-	local dirname
+	local dir_name
 
-	for libdir $(list_libdirs) ; do
+	for libdir in $(list_libdirs) ; do
 		[[ ${ROOT} != / ]] && libdir=${libdir#${ROOT}}
 		for dir in "${PREFIX}/${libdir}"/opengl/* ; do
-			dirname=$(basename "${dir}")
-			[[ -d ${dir} && ${dirname} != "global" ]] || continue
-			has ${dirname} ${ret} && continue
-			ret=${ret:+${ret} }${dirname}
+			dir_name=$(basename "${dir}")
+			[[ -d ${dir} && ${dir_name} != "global" ]] || continue
+			has ${dir_name} ${ret} && continue
+			ret=${ret:+${ret} }${dir_name}
 		done
 	done
 
 	echo ${ret}
-}
-
-# 1: filename
-clean_file() {
-	local filename=$1
-
-	if [[ -f ${filename} || ( -L ${filename} && ! -e ${filename} ) ]] ; then
-		rm -f "${filename}"* || die -q "Failed to delete ${workdir}/${filename}"
-	fi
 }
 
 # 1: file
@@ -79,10 +70,14 @@ upgrade_file() {
 	[[ -f ${file} ]] || return
 	filename=$(basename "${file}")
 
-	clean_file ${filename}
+	if [[ -f ${filename} || ( -L ${filename} && ! -e ${filename} ) ]] ; then
+		rm -f "${filename}"* || die -q "Failed to delete ${workdir}/${filename}"
+	fi
 
 	#echo "DEBUG: ln -s \"${linkfile}\" \"${filename}\""
-	ln -s "${linkfile}" "${filename}" || die -q "Failed to create symlink ${workdir}/${filename}"
+	if [[ "x${REMOVE_ONLY}" == "xfalse" ]]; then
+		ln -s "${linkfile}" "${filename}" || die -q "Failed to create symlink ${workdir}/${filename}"
+	fi
 }
 
 setup_soname_symlinks() {
@@ -197,15 +192,18 @@ set_new_implementation() {
 		# If even mesa is not around then simply die
 		if [[ -d "${PREFIX}/${libdir}/opengl/${gl_implem}" ]] ; then
 			gl_local="${gl_implem}"
+			REMOVE_ONLY="false" # global variable
 		else
-			# TODO:
 			# we are moving to implementation that does not have any support
 			# for specified libdir (ie 32bit libs for mesa) so we should
 			# remove the current symlinks and continue like nothing happened.
-
-			# bail out, no implementation around until the above is
-			# implemented
-			die -q "No proper ${gl_implem} or xorg-x11 opengl implementation found in ${PREFIX}/${libdir}/opengl/"
+			REMOVE_ONLY="true" # global variable
+			gl_local=$(get_current_implementation)
+			if ! has ${gl_local} ${avail_implems}; then
+				# skipping the libdir cause there was no profile actually
+				# selected before
+				continue 2
+			fi
 		fi
 
 		setup_lib_symlinks \
@@ -232,7 +230,9 @@ set_new_implementation() {
 			"${PREFIX}/${libdir}/opengl/xorg-x11/include/"
 
 		# Setup the $LDPATH
-		ldpath="${ldpath:+${ldpath}:}${PREFIX}/${libdir}/opengl/${gl_local}/lib"
+		if [[ "x${REMOVE_ONLY}" == "xfalse" ]]; then
+			ldpath="${ldpath:+${ldpath}:}${PREFIX}/${libdir}/opengl/${gl_local}/lib"
+		fi
 	done
 
 	store_config ${ENV_FILE} LDPATH "${ldpath}"
