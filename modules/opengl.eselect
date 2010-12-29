@@ -3,7 +3,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 # Author:  Martin Schlemmer <azarah@gentoo.org>
-# Further modifications by Michał Górny <gentoo@mgorny.alt.pl>
+# Further modifications by Michał Górny <mgorny@gentoo.org>
 # Further modifications by Tomáš Chvátal <scarabeus@gentoo.org>
 # Further modifications by Donnie Berkholz <dberkholz@gentoo.org>
 # Further modifications based off submissions to bug #54984 <cyfred@gentoo.org>
@@ -42,13 +42,13 @@ get_current_implementation() {
 
 get_implementations() {
 	local ret
-	local x
+	local libdir
 	local dir
 	local dirname
 
-	for x in $(list_libdirs) ; do
-		[[ ${ROOT} != / ]] && x=${x#${ROOT}}
-		for dir in "${PREFIX}/${x}"/opengl/* ; do
+	for libdir $(list_libdirs) ; do
+		[[ ${ROOT} != / ]] && libdir=${libdir#${ROOT}}
+		for dir in "${PREFIX}/${libdir}"/opengl/* ; do
 			dirname=$(basename "${dir}")
 			[[ -d ${dir} && ${dirname} != "global" ]] || continue
 			has ${dirname} ${ret} && continue
@@ -57,6 +57,15 @@ get_implementations() {
 	done
 
 	echo ${ret}
+}
+
+# 1: filename
+clean_file() {
+	local filename=$1
+
+	if [[ -f ${filename} || ( -L ${filename} && ! -e ${filename} ) ]] ; then
+		rm -f "${filename}"* || die -q "Failed to delete ${workdir}/${filename}"
+	fi
 }
 
 # 1: file
@@ -69,9 +78,8 @@ upgrade_file() {
 
 	[[ -f ${file} ]] || return
 	filename=$(basename "${file}")
-	if [[ -f ${filename} || ( -L ${filename} && ! -e ${filename} ) ]] ; then
-		rm -f "${filename}"* || die -q "Failed to delete ${workdir}/${filename}"
-	fi
+
+	clean_file ${filename}
 
 	#echo "DEBUG: ln -s \"${linkfile}\" \"${filename}\""
 	ln -s "${linkfile}" "${filename}" || die -q "Failed to create symlink ${workdir}/${filename}"
@@ -118,7 +126,7 @@ setup_extensions_symlinks() {
 		mkdir -p "${target}" || die "Failed to create ${target}"
 		pushd "${target}" &> /dev/null
 			# First remove old cruft symlinks
-			for file in lib{wfb,glx,dri,dri2}.{a,dylib,so}; do
+			for file in lib{wfb,glx,dri,dri2}.{so,dylib,a}; do
 				rm -f "${file}" || die -q "Failed to delete ${targetdir}/${file}"
 			done
 
@@ -190,12 +198,14 @@ set_new_implementation() {
 		if [[ -d "${PREFIX}/${libdir}/opengl/${gl_implem}" ]] ; then
 			gl_local="${gl_implem}"
 		else
-			if [[ -d "${PREFIX}/${libdir}/opengl/xorg-x11" ]]; then
-				gl_local="xorg-x11"
-			else
-				# bail out, no implementation around
-				die -q "No proper ${gl_implem} or xorg-x11 opengl implementation found"
-			fi
+			# TODO:
+			# we are moving to implementation that does not have any support
+			# for specified libdir (ie 32bit libs for mesa) so we should
+			# remove the current symlinks and continue like nothing happened.
+
+			# bail out, no implementation around until the above is
+			# implemented
+			die -q "No proper ${gl_implem} or xorg-x11 opengl implementation found in ${PREFIX}/${libdir}/opengl/"
 		fi
 
 		setup_lib_symlinks \
