@@ -6,7 +6,7 @@
 EDITOR_VAR="PACKAGE_MANAGER"
 EDITOR_ENVFILE="/etc/env.d/50package-manager"
 EDITOR_LIST="portage:/usr/bin/emerge
-	paludis:/usr/bin/paludis
+	paludis:/usr/bin/cave
 	pkgcore:/usr/bin/pmerge"
 
 inherit editor-variable

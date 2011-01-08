@@ -1,3 +1,8 @@
+2011-01-08  Ulrich Mueller  <ulm@gentoo.org>
+
+	* modules/package-manager.eselect (EDITOR_LIST): Test for cave
+	rather than paludis.
+
 2010-10-31 Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org>
 
 	* modules/mesa.eselect:  Update for new media-libs/mesa ebuild
