@@ -97,6 +97,21 @@ setup_soname_symlinks() {
 	fi
 }
 
+# XXX: check prefix paths, remove old symlinks when no debug
+setup_debug_symlinks() {
+	local file=$(readlink -f "${1}")
+	local target=${DST_PREFIX}/lib/debug/$2
+	local debugfile=${PREFIX}/lib/debug/${file}.debug
+
+	if [[ -e "${file}" && -e "${debugfile}" ]]; then
+		mkdir -p "${target}" || die "Failed to create ${target}"
+
+		pushd "${target}" &> /dev/null
+			upgrade_file "${debugfile}" "${target}"
+		popd &> /dev/null
+	fi
+}
+
 setup_lib_symlinks() {
 	local profile_libdir=$1
 	local target=$2
@@ -113,6 +128,7 @@ setup_lib_symlinks() {
 		for file in "${profile_libdir}"/libGL{,core}.{so,dylib,a}; do
 			upgrade_file "${file}" "${target}"
 			setup_soname_symlinks "${file}" "${target}"
+			setup_debug_symlinks "${file}" "${target}"
 		done
 	popd &> /dev/null
 }
@@ -133,6 +149,7 @@ setup_extensions_symlinks() {
 			for file in "${src}"/*.{so,dylib,a}; do
 				upgrade_file "${file}" "${target}"
 				setup_soname_symlinks "${file}" "${target}"
+				setup_debug_symlinks "${file}" "${target}"
 			done
 		popd &> /dev/null
 	fi
