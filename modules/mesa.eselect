@@ -6,11 +6,13 @@ DESCRIPTION="Manage the OpenGL driver architecture used by media-libs/mesa"
 MAINTAINER="x11@gentoo.org"
 SVN_DATE='$Date: $'
 VERSION=$(svn_date_to_version "${SVN_DATE}" )
-EBUILD_VERSION="0.0.8"
+EBUILD_VERSION="0.0.9"
 
 MESA_CONF_DIR="${EROOT}/usr/share/mesa"
-MESA_DIR="${EROOT}/usr/lib/mesa"
-DRI_DIR="${EROOT}/usr/lib/dri"
+MESA_DIR_64="${EROOT}/usr/lib/mesa"
+DRI_DIR_64="${EROOT}/usr/lib/dri"
+MESA_DIR_32="${EROOT}/usr/lib32/mesa"
+DRI_DIR_32="${EROOT}/usr/lib32/dri"
 
 source "${MESA_CONF_DIR}"/eselect-mesa.conf || die "Failed to source config"
 
@@ -82,17 +84,27 @@ describe_show() {
 	echo "Print the current OpenGL driver."
 }
 
-do_show() {
+doshow_helper() {
 	local current
 	local driver
+
 	for driver in ${MESA_IMPLEMENTATIONS}; do
 		current=$(get_current_implementation ${driver})
 		if [[ -n ${current} ]]; then
-			echo -n "${driver} "
+			echo -n "${multiarch}${driver} "
 			echo ${current}
 		fi
 	done
 	return 0
+}
+
+do_show() {
+	if [[ -d "${MESA_DIR_32}" && -d "${DRI_DIR_32}" ]]; then
+		MESA_DIR=${MESA_DIR_64} DRI_DIR=${DRI_DIR_64} multiarch="64bit " doshow_helper
+		MESA_DIR=${MESA_DIR_32} DRI_DIR=${DRI_DIR_32} multiarch="32bit " doshow_helper
+	else
+		MESA_DIR=${MESA_DIR_64} DRI_DIR=${DRI_DIR_64} doshow_helper
+	fi
 }
 
 ### list action ###
@@ -100,13 +112,13 @@ describe_list() {
 	echo "List the available OpenGL drivers."
 }
 
-do_list() {
+dolist_helper() {
 	local driver
 	local available
 
 	# assemble the list of drivers with the installed implementations
 	for driver in ${MESA_IMPLEMENTATIONS}; do
-		write_list_start ${MESA_DRIVERS[${driver},description]}
+		write_list_start "${multiarch}${MESA_DRIVERS[${driver},description]}"
 		available=( $(get_implementations ${driver}) )
 		for (( i = 0 ; i < ${#available[@]} ; i = i + 1 )); do
 			if [[ ${available[${i}]} == $(get_current_implementation ${driver}) ]]; then
@@ -117,22 +129,32 @@ do_list() {
 	done
 }
 
+do_list() {
+	if [[ -d "${MESA_DIR_32}" && -d "${DRI_DIR_32}" ]]; then
+		MESA_DIR=${MESA_DIR_64} DRI_DIR=${DRI_DIR_64} multiarch="64bit " dolist_helper
+		MESA_DIR=${MESA_DIR_32} DRI_DIR=${DRI_DIR_32} multiarch="32bit " dolist_helper
+	else
+		MESA_DIR=${MESA_DIR_64} DRI_DIR=${DRI_DIR_64} dolist_helper
+	fi
+}
+
 ### set action ###
 describe_set() {
 	echo "Select the OpenGL driver."
 }
 
 describe_set_parameters() {
-	echo "[--auto|<family> <architecture>]"
+	echo "[32bit|64bit] [--auto|<family> <architecture>]"
 }
 
 describe_set_options() {
+	echo "32bit, 64bit : (optional) Apply changes to 32 bit or 64 bit multilib only"
 	echo "--auto : Sets all drivers which are not already set"
 	echo "<family> : The chipset family, or sw for software renderer"
 	echo "<architecture> : The driver architecture"
 }
 
-do_set() {
+doset_helper() {
 	if [[ "$1" == --auto ]]; then
 		local driver
 		for driver in ${MESA_IMPLEMENTATIONS}; do
@@ -143,12 +165,12 @@ do_set() {
 			fi
 			# set the implementation if it is not already set
 			if [[ -n ${implementations} && ! -n $(get_current_implementation ${driver}) ]]; then
-				do_set ${driver} ${implementations}
+				doset_helper ${driver} ${implementations}
 			fi
 		done
-		exit 0
+		return 0
 	elif [[ ${#} != 2 ]] ; then
-		die -q "Usage: set [--auto|<family> <architecture>]"
+		die -q "Usage: set $(describe_set_parameters)"
 	fi
 
 	local family=$(echo $1 | tr '[:upper:]' '[:lower:]')
@@ -167,11 +189,32 @@ do_set() {
 	local target=$(get_drivername ${family} ${architecture})
 
 	if [[ ! -n ${symlink} || ! -n ${target} ]]; then
-		die -q "Invalid family or architecture."
+		write_warning_msg "Invalid selection: ${multiarch}${family} ${architecture}."
 	elif [[ -e ${DRI_DIR}/${symlink} && ! -L ${DRI_DIR}/${symlink} ]]; then
 		die -q "Unable to update ${DRI_DIR}/${symlink} - not a symlink"
 	elif [[ -f ${MESA_DIR}/${target} ]]; then
-		echo "Switching ${family} to ${architecture}"
+		echo "Switching ${multiarch}${family} to ${architecture}"
 		ln -s -f ../mesa/${target} ${DRI_DIR}/${symlink}
 	fi
+}
+
+do_set() {
+	if [[ $1 == "64bit" ]]; then
+		if [[ -d "${MESA_DIR_64}" && -d "${DRI_DIR_64}" ]]; then
+			MESA_DIR=${MESA_DIR_64} DRI_DIR=${DRI_DIR_64} multiarch="$1 " doset_helper $2 $3
+		fi
+	elif [[ $1 == "32bit" ]]; then
+		if [[ -d "${MESA_DIR_32}" && -d "${DRI_DIR_32}" ]]; then
+			MESA_DIR=${MESA_DIR_32} DRI_DIR=${DRI_DIR_32} multiarch="$1 " doset_helper $2 $3
+		else
+			write_warning_msg "The 32bit parameter is intended for multilib systems only"
+		fi
+	else
+		if [[ -d "${MESA_DIR_32}" && -d "${DRI_DIR_32}" ]]; then
+			MESA_DIR=${MESA_DIR_64} DRI_DIR=${DRI_DIR_64} multiarch="64bit " doset_helper $1 $2
+			MESA_DIR=${MESA_DIR_32} DRI_DIR=${DRI_DIR_32} multiarch="32bit " doset_helper $1 $2
+		else
+			MESA_DIR=${MESA_DIR_64} DRI_DIR=${DRI_DIR_64} doset_helper $1 $2
+		fi
+	fi		
 }
