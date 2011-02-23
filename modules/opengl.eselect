@@ -173,6 +173,21 @@ set_new_implementation() {
 		die -q "Invalid opengl implementation selected."
 	fi
 
+	local found_libgl
+	for libdir in $(list_libdirs); do
+		[[ ${ROOT} != / ]] && libdir=${libdir#${EROOT}}
+		[[ -d ${PREFIX}/${libdir}/opengl && ! -h ${PREFIX}/${libdir} ]] || continue
+		[[ -f "${PREFIX}/${libdir}/opengl/${gl_implem}/lib/libGL.so" ]] && found_libgl=yes
+	done
+
+	if [[ -z ${found_libgl} ]]; then
+		write_error_msg "The ${gl_implem} OpenGL implementation doesn't seem to provide"
+		write_error_msg "libGL.so file. This might be an effect of breakage introduced"
+		write_error_msg "by a prioprietary driver installer. Please re-merge the package"
+		write_error_msg "providing your OpenGL implementation."
+		die -q "Selected OpenGL implementation incomplete."
+	fi
+
 	echo -n "Switching to ${gl_implem} OpenGL interface..."
 	if [[ -f ${ENV_FILE} ]] ; then
 		rm -f "${ENV_FILE}" || die -q "Failed to remove ${ENV_FILE}"
