@@ -1,4 +1,4 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id: $                                                          
 
@@ -6,15 +6,13 @@ DESCRIPTION="Manage the OpenGL driver architecture used by media-libs/mesa"
 MAINTAINER="x11@gentoo.org"
 SVN_DATE='$Date: $'
 VERSION=$(svn_date_to_version "${SVN_DATE}" )
-EBUILD_VERSION="0.0.9"
+EBUILD_VERSION="0.0.10"
 
 MESA_CONF_DIR="${EROOT}/usr/share/mesa"
 MESA_DIR_64="${EROOT}/usr/lib/mesa"
 DRI_DIR_64="${EROOT}/usr/lib/dri"
 MESA_DIR_32="${EROOT}/usr/lib32/mesa"
 DRI_DIR_32="${EROOT}/usr/lib32/dri"
-
-source "${MESA_CONF_DIR}"/eselect-mesa.conf || die "Failed to source config"
 
 # receives a filename of the driver as argument, outputs the architecture (classic or gallium)
 drivername_to_architecture() {
@@ -99,6 +97,7 @@ doshow_helper() {
 }
 
 do_show() {
+	source "${MESA_CONF_DIR}"/eselect-mesa.conf || die "Failed to source config"
 	if [[ -d "${MESA_DIR_32}" && -d "${DRI_DIR_32}" ]]; then
 		MESA_DIR=${MESA_DIR_64} DRI_DIR=${DRI_DIR_64} multiarch="64bit " doshow_helper
 		MESA_DIR=${MESA_DIR_32} DRI_DIR=${DRI_DIR_32} multiarch="32bit " doshow_helper
@@ -130,6 +129,7 @@ dolist_helper() {
 }
 
 do_list() {
+	source "${MESA_CONF_DIR}"/eselect-mesa.conf || die "Failed to source config"
 	if [[ -d "${MESA_DIR_32}" && -d "${DRI_DIR_32}" ]]; then
 		MESA_DIR=${MESA_DIR_64} DRI_DIR=${DRI_DIR_64} multiarch="64bit " dolist_helper
 		MESA_DIR=${MESA_DIR_32} DRI_DIR=${DRI_DIR_32} multiarch="32bit " dolist_helper
@@ -199,6 +199,7 @@ doset_helper() {
 }
 
 do_set() {
+	source "${MESA_CONF_DIR}"/eselect-mesa.conf || die "Failed to source config"
 	if [[ $1 == "64bit" ]]; then
 		if [[ -d "${MESA_DIR_64}" && -d "${DRI_DIR_64}" ]]; then
 			MESA_DIR=${MESA_DIR_64} DRI_DIR=${DRI_DIR_64} multiarch="$1 " doset_helper $2 $3
