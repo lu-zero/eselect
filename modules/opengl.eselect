@@ -110,7 +110,7 @@ setup_lib_symlinks() {
 			rm -f "${file}"* || die -q "Failed to delete ${file}"
 		done
 
-		for file in "${profile_libdir}"/libGL{,core}.{so,dylib,a}; do
+		for file in "${profile_libdir}"/lib{EGL,GL,OpenVG}{,core}.{so,dylib,a}; do
 			upgrade_file "${file}" "${target}"
 			setup_soname_symlinks "${file}" "${target}"
 		done
