@@ -23,6 +23,7 @@ EBUILD_VERSION="1.2.1"
 ENV_FILE="${EROOT}/etc/env.d/03opengl"
 PREFIX="${EROOT}/usr"
 DST_PREFIX="${EROOT}/usr"
+unset IGNORE_MISSING
 
 get_current_implementation() {
 	local ret
@@ -173,19 +174,21 @@ set_new_implementation() {
 		die -q "Invalid opengl implementation selected."
 	fi
 
-	local found_libgl
-	for libdir in $(list_libdirs); do
-		[[ ${ROOT} != / ]] && libdir=${libdir#${EROOT}}
-		[[ -d ${PREFIX}/${libdir}/opengl && ! -h ${PREFIX}/${libdir} ]] || continue
-		[[ -f "${PREFIX}/${libdir}/opengl/${gl_implem}/lib/libGL.so" ]] && found_libgl=yes
-	done
+	if [[ -z ${IGNORE_MISSING+1} ]]; then
+		local found_libgl
+		for libdir in $(list_libdirs); do
+			[[ ${ROOT} != / ]] && libdir=${libdir#${EROOT}}
+			[[ -d ${PREFIX}/${libdir}/opengl && ! -h ${PREFIX}/${libdir} ]] || continue
+			[[ -f "${PREFIX}/${libdir}/opengl/${gl_implem}/lib/libGL.so" ]] && found_libgl=yes
+		done
 
-	if [[ -z ${found_libgl} ]]; then
-		write_error_msg "The ${gl_implem} OpenGL implementation doesn't seem to provide"
-		write_error_msg "libGL.so file. This might be an effect of breakage introduced"
-		write_error_msg "by a prioprietary driver installer. Please re-merge the package"
-		write_error_msg "providing your OpenGL implementation."
-		die -q "Selected OpenGL implementation incomplete."
+		if [[ -z ${found_libgl} ]]; then
+			write_error_msg "The ${gl_implem} OpenGL implementation doesn't seem to provide"
+			write_error_msg "libGL.so file. This might be an effect of breakage introduced"
+			write_error_msg "by a prioprietary driver installer. Please re-merge the package"
+			write_error_msg "providing your OpenGL implementation."
+			die -q "Selected OpenGL implementation incomplete."
+		fi
 	fi
 
 	echo -n "Switching to ${gl_implem} OpenGL interface..."
@@ -310,6 +313,7 @@ describe_set_options() {
 	echo "--use-old : If an implementation is already set, use that one instead"
 	echo "--prefix=<val> : Set the source prefix (default: /usr)"
 	echo "--dst-prefix=<val> : Set the destination prefix (default: /usr)"
+	echo "--ignore-missing : Ignore missing files when setting a new implementation"
 }
 
 do_set() {
@@ -334,6 +338,9 @@ do_set() {
 			;;
 			--dst-prefix=*)
 				DST_PREFIX=${ROOT}${opt#*=}
+			;;
+			--ignore-missing)
+				IGNORE_MISSING=1
 			;;
 			*)
 				if [[ ${action} != "old-implementation" ]] ; then
