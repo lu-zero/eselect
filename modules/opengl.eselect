@@ -253,7 +253,8 @@ set_new_implementation() {
 
 		# Setup the $LDPATH
 		if [[ "x${REMOVE_ONLY}" == "xfalse" ]]; then
-			ldpath="${ldpath:+${ldpath}:}${PREFIX}/${libdir}/opengl/${gl_local}/lib"
+			# we need this relative to ROOT
+			ldpath="${ldpath:+${ldpath}:}${PREFIX#${ROOT}}/${libdir}/opengl/${gl_local}/lib"
 		fi
 	done
 
