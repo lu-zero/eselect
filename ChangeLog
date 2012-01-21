@@ -11,7 +11,7 @@
 	* AUTHORS: Add myself.
 	* modules/mesa.eselect:  Update for multilib support
 
-2011-01-08  Ulrich Mueller  <ulm@gentoo.org>
+2011-01-08  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/package-manager.eselect (EDITOR_LIST): Test for cave
 	rather than paludis.
@@ -20,7 +20,7 @@
 
 	* modules/mesa.eselect:  Update for new media-libs/mesa ebuild
 
-2010-02-26  Ulrich Mueller  <ulm@gentoo.org>
+2010-02-26  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/vi.eselect (set_symlinks): Fix handling of ROOT in
 	symlinks, bug 260593.
@@ -30,12 +30,12 @@
 	* AUTHORS: Add myself.
 	* modules/wxwidgets.eselect: Add support for 2.9.
 
-2010-01-27  Ulrich Mueller  <ulm@gentoo.org>
+2010-01-27  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/esd.eselect: Use EROOT throughout, bug 302134.
 	Fix quoting.
 
-2009-11-22  Ulrich Mueller  <ulm@gentoo.org>
+2009-11-22  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/oracle.eselect: Module removed. See bug 292111.
 
@@ -44,7 +44,7 @@
 	* modules/fontconfig.eselect: Use EROOT throughout.
 	Update MAINTAINER.
 
-2009-11-13  Ulrich Mueller  <ulm@gentoo.org>
+2009-11-13  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/fontconfig.eselect: Replace Header by Id, since the
 	former is not a valid subversion keyword.
@@ -53,7 +53,7 @@
 
 	* modules/wxwidgets.eselect: Use EROOT throughout. Minor updates.
 
-2009-11-12  Ulrich Mueller  <ulm@gentoo.org>
+2009-11-12  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/fontconfig.eselect (do_list):
 	* modules/vi.eselect (do_list):
@@ -68,7 +68,7 @@
 	to use correct basename for link name.
 	* man/opengl.eselect.5: Drop mention of --impl-headers.
 
-2009-11-06  Ulrich Mueller  <ulm@gentoo.org>
+2009-11-06  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/opengl.eselect (do_list): Support brief output mode,
 	bug 292109.
@@ -87,7 +87,7 @@
 	before its recreation. Drop --impl-headers option which is not
 	used anywhere anyway. Revert if there are issues (should be none).
 
-2009-09-18  Ulrich Mueller  <ulm@gentoo.org>
+2009-09-18  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/whois.eselect: Removed, as its ebuild was removed from
 	the Portage tree long ago, see bug 153030.
@@ -97,7 +97,7 @@
 	The files' new location is in the Java project overlay:
 	<https://overlays.gentoo.org/svn/proj/java/projects/java-config-2>
 
-2009-09-17  Ulrich Mueller  <ulm@gentoo.org>
+2009-09-17  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/opengl.eselect: Sync with version in Portage, on behalf
 	of Tomáš Chvátal <scarabeus@gentoo.org>.
@@ -112,31 +112,31 @@
 	symlinks; patches from Fabio Erculiani <lxnay@sabayonlinux.org>,
 	fixes bugs 274959 and 281452. Don't call check_version.
 
-2009-06-04  Ulrich Mueller  <ulm@gentoo.org>
+2009-06-04  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/package-manager.eselect: New module, managing the
 	PACKAGE_MANAGER environment variable.
 	* man/package-manager.eselect.5: New man page.
 
-2009-05-16  Ulrich Mueller  <ulm@gentoo.org>
+2009-05-16  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/ruby.eselect: Remove outdated ruby module, as discussed
 	with Alex Legler <a3li@gentoo.org>. Current version is maintained
 	at <git://git.overlays.gentoo.org/proj/ruby-scripts.git>.
 
-2009-04-27  Ulrich Mueller  <ulm@gentoo.org>
+2009-04-27  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/opengl.eselect (check_version): Don't call portageq
 	directly, use generic has_version function instead.
 
-2009-04-25  Ulrich Mueller  <ulm@gentoo.org>
+2009-04-25  Ulrich Müller  <ulm@gentoo.org>
 
 	* man/blas.eselect.5:
 	* man/cblas.eselect.5:
 	* man/lapack.eselect.5:
 	* man/opengl.eselect.5: Use man macros.
 
-2009-04-21  Ulrich Mueller  <ulm@gentoo.org>
+2009-04-21  Ulrich Müller  <ulm@gentoo.org>
 
 	* modules/compiler.eselect.in: Remove dead module.
 
