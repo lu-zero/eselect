@@ -1,6 +1,5 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id: $                                                          
 
 DESCRIPTION="Manage the OpenGL driver architecture used by media-libs/mesa"
 MAINTAINER="x11@gentoo.org"

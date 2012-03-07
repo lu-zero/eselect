@@ -1,7 +1,6 @@
 # -*-eselect-*-  vim: ft=eselect
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 DESCRIPTION="Manage the configuration of dictionaries for OpenOffice.Org."
 MAINTAINER="kevquinn@gentoo.org"
