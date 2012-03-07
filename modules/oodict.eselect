@@ -4,8 +4,7 @@
 
 DESCRIPTION="Manage the configuration of dictionaries for OpenOffice.Org."
 MAINTAINER="kevquinn@gentoo.org"
-SVN_DATE='$Date$'
-VERSION=$(svn_date_to_version "${SVN_DATE}" )
+VERSION="20100228"
 
 # TODO
 # 1) implement eselect oodict unset direct-<lang>

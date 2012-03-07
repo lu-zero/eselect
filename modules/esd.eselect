@@ -4,8 +4,7 @@
 
 DESCRIPTION="Select esound daemon or wrapper"
 MAINTAINER="flameeyes@gentoo.org"
-SVN_DATE='$Date$'
-VERSION=$(svn_date_to_version "${SVN_DATE}" )
+VERSION="20100127"
 
 # find a list of esd symlink targets, best first
 find_targets() {

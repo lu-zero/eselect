@@ -1,3 +1,10 @@
+2012-03-08  Ulrich Müller  <ulm@gentoo.org>
+
+	* modules/esd.eselect (VERSION):
+	* modules/oodict.eselect (VERSION):
+	* modules/package-manager.eselect (VERSION): Set version to date
+	of last revision in subversion repo.
+
 2012-03-02 Luca Barbato <lu_zero@gentoo.org>
 
 	* modules/opengl.eselect: switch GLES as well, bug #406501
