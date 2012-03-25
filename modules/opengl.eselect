@@ -140,14 +140,14 @@ setup_extensions_symlinks() {
 
 setup_includes_symlinks() {
 	local target=$1
+	local files=$2
 	local file
 	local sdir
 
-	shift
-
+	shift 2
 	mkdir -p "${target}" || die "Failed to create ${target}"
 	pushd "${target}" &> /dev/null
-		for file in gl.h glx.h glxtokens.h glext.h glxext.h glxmd.h glxproto.h; do
+		for file in ${files}; do
 			for sdir in "$@"; do
 				if [[ -e ${sdir}/${file} ]]; then
 					upgrade_file "${sdir}/${file}" "${target}"
@@ -165,6 +165,7 @@ set_new_implementation() {
 	local moduledir
 	local gl_dir
 	local gl_local
+	local -A gl_header
 
 	# Set a sane umask... bug #83115
 	umask 022
@@ -178,7 +179,7 @@ set_new_implementation() {
 		for libdir in $(list_libdirs); do
 			[[ ${ROOT} != / ]] && libdir=${libdir#${EROOT}}
 			[[ -d ${PREFIX}/${libdir}/opengl && ! -h ${PREFIX}/${libdir} ]] || continue
-			[[ -f "${PREFIX}/${libdir}/opengl/${gl_implem}/lib/libGL.so" ]] && found_libgl=yes
+			[[ -f "${PREFIX}/${libdir}/opengl/${gl_implem}/lib/libGL.so" || -f "${PREFIX}/${libdir}/opengl/${gl_implem}/.gles-only" ]] && found_libgl=yes
 		done
 
 		if [[ -z ${found_libgl} ]]; then
@@ -242,14 +243,20 @@ set_new_implementation() {
 			"${PREFIX}/${libdir}/opengl/${gl_local}/extensions" \
 			"${DST_PREFIX}/${libdir}/${moduledir}/extensions"
 
-		setup_includes_symlinks \
-			"${DST_PREFIX}/include/GL" \
-			"${PREFIX}/${libdir}/opengl/${gl_implem}/include/GL/" \
-			"${PREFIX}/${libdir}/opengl/${gl_implem}/include/" \
-			"${PREFIX}/${libdir}/opengl/global/include/" \
-			"${PREFIX}/${libdir}/opengl/xorg-x11/include/GL/" \
-			"${PREFIX}/${libdir}/opengl/xorg-x11/include/"
-
+		gl_header[GL]="gl.h glx.h glxtokens.h glext.h glxext.h glxmd.h glxproto.h"
+		gl_header[GLES]="egl.h gl_extensions.h glext.h gl.h glplatform.h"
+		gl_header[GLES2]="gl2ext.h gl2.h gl2platform.h"
+		gl_header[EGL]="eglext.h egl.h eglplatform.h"
+		gl_header[KHR]="khrplatform.h"
+		gl_header[VG]="openvg.h vgext.h vgplatform.h vgu.h"
+		for gl_dir in {EGL,GL,GLES,GLES2,KHR,VG}; do
+	                setup_includes_symlinks \
+	                "${DST_PREFIX}/include/${gl_dir}" \
+				"${gl_header[${gl_dir}]}" \
+	                "${PREFIX}/${libdir}/opengl/${gl_implem}/include/${gl_dir}/" \
+	                "${PREFIX}/${libdir}/opengl/global/include/${gl_dir}" \
+	                "${PREFIX}/${libdir}/opengl/xorg-x11/include/${gl_dir}/"
+		done
 		# Setup the $LDPATH
 		if [[ "x${REMOVE_ONLY}" == "xfalse" ]]; then
 			# we need this relative to ROOT
